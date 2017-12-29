@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= title %></title>
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+  </head>
+  <body>
+    <h1><%= title %></h1>
+    <p>EJS Welcome to <%= title %></p>
+    <script >
+      function get(){  
+        var req = new XMLHttpRequest();  
+        if(req){  
+            req.open("GET", "http://localhost:3000/string", true);  
+            req.setRequestHeader("Authorization",'U2FsdGVkX1+YUFPxRBnTviBE+m/uoh5eswGAABquharQRLWSFgEehwW+s5b9dTQhAD036ikwZwdOpXBFDoopbNgQDC3PUaA/bPUWXOqsaPM=');
+            req.onreadystatechange = function(){  
+                if(req.readyState == 4){  
+                    if(req.status == 200){
+                      console.log(req.response)  
+                    }else{  
+                        alert("error");  
+                    }  
+                }  
+            }  
+            req.send(null);  
+        }  
+    }  
+    get()
+    </script>
+  </body>
+</html>
