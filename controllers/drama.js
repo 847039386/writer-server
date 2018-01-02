@@ -1,5 +1,6 @@
 const Drama = require('../proxy').Drama
 const Chapter = require('../proxy').Chapter
+const Comment = require('../proxy').Comment
 
 const find = async (ctx ,next) => {
     let page = parseInt(ctx.query.page) || 1;
@@ -91,10 +92,10 @@ const remove = async ( ctx ,next ) => {
     let result = { success :false };
     let id = ctx.request.body.id;
     if( id ){
-        let promise = Promise.all([Drama.removeById(id),Chapter.remove({ drama_id :id })]);
+        let promise = Promise.all([Drama.removeById(id),Chapter.remove({ drama_id :id }),Comment.remove({drama_id :id})]);
         let datas = await promise;
-        if(datas && datas.length == 2){
-            if(datas[0].success && datas[1].success){
+        if(datas && datas.length == 3){
+            if(datas[0].success && datas[1].success && datas[2].success){
                 result = { success :true , data :datas[0].data }
             }else{
                 result = Object.assign(result ,{ msg :'错误' ,data : datas });

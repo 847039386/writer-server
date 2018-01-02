@@ -66,7 +66,11 @@ const removeById = (id) => {
             if(err){
                 resolve({ success:false , msg :Config.debug ? err.message :'未知错误' })
             }else{
-                resolve({ success :true , data :data})
+                if(data){
+                    resolve({ success :true , data :data})
+                }else{
+                    resolve({ success :false , msg :'错误的ID'})
+                }
             }
         })
     })
@@ -79,7 +83,11 @@ const updateById = (id , newDate ,options) => {
             if(err){
                 resolve({ success:false , msg :Config.debug ? err.message :'未知错误' })
             }else{
-                resolve({ success :true , data :data})
+                if(data){
+                    resolve({ success :true , data :data})
+                }else{
+                    resolve({ success :false , msg :'错误的ID'})
+                }
             }
         })
     })

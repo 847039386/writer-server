@@ -2,7 +2,6 @@ const UserAuth = require('../models').UserAuth;
 const User = require('./user');
 const Config = require('../config');
 const { Jwt ,qqOAuth } = require('../common')
-const secretKey = 'key';
 
 const onLogin = (name ,avatar) => {
     return new Promise((resolve ,reject) => {
@@ -38,7 +37,7 @@ const hostLogin = ( username , password ) => {
                 if(ua.token === password){
                     let user = await User.findById(ua.user_id);
                     if(user.success){
-                        let token = Jwt.issueToken('admin',ua.user_id,secretKey);
+                        let token = Jwt.issueToken(Config.admin,ua.user_id,Config.JwtKey);
                         if(token){
                             let userResult = user.data.toObject();
                             userResult = Object.assign(userResult ,{ token }) 
@@ -66,7 +65,7 @@ const toRegister = (identity_type ,name ,identifier ,avatar ,password ) => {
             if(err){
                 resolve({ success:false , msg :Config.debug ? err.message :'未知错误' })
             }else{
-                let token = Jwt.issueToken('admin',ua.user_id,secretKey);
+                let token = Jwt.issueToken(Config.admin,ua.user_id,Config.JwtKey);
                 if(token){
                     let userResult = user.data.toObject();
                     userResult = Object.assign(userResult ,{ token })
@@ -91,7 +90,7 @@ const findBYIdentifier = (identifier ,identity_type) => {
                 if(data){
                     resolve({ success :true ,data : data.user_id })
                 }else{
-                    resolve({ success :false })
+                    resolve({ success :false ,msg :'并没有该用户' })
                 }
             }
         })
@@ -106,15 +105,19 @@ const qqLogin = ( code ) => {
         redirectURL : Config.OAuth.qq.redirectURL,
     })
     return new Promise((resolve ,reject) => {
+        var MyOpenid = '';
+        var MyToken = '';
         try {
             qqoa.getTOKEN(code).then((token) => {
+                MyToken = token;
                 return qqoa.getOpenID(token);
             }).then((openid) => {
+                MyOpenid = openid;
                 return findBYIdentifier(openid,'qq')
             }).then((userData) => {
                 if(userData.success){
                     let user_id = userData.data._id
-                    let token = Jwt.issueToken('admin',user_id,secretKey);
+                    let token = Jwt.issueToken(Config.admin,user_id,Config.JwtKey);
                     if(token){
                         let userResult = userData.data.toObject();
                         userResult = Object.assign(userResult ,{ token }) 
@@ -124,8 +127,8 @@ const qqLogin = ( code ) => {
                     }
                     resolve(userData);
                 }else{
-                    qqoa.getUserInfo(openid,token).then((userInfo) => {
-                        toRegister('qq',userInfo.nickname,openid,userInfo.figureurl_2,token).then((huserInfo) => {
+                    qqoa.getUserInfo(MyOpenid,MyToken).then((userInfo) => {
+                        toRegister('qq',userInfo.nickname,MyOpenid,userInfo.figureurl_2,MyToken).then((huserInfo) => {
                             resolve(huserInfo)
                         })
                     }).catch((userInfoError) => {

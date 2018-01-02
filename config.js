@@ -1,7 +1,9 @@
 const config = {
     debug :true,
-    port : 5555,
-    admin : '847039386@qq.com',
+    authRedirectURL :'http://localhost:3000',                  //这里对应着第三方登陆的回调测试的时候前后端分离是3000上线之后是本站的域名。
+    JwtKey : 'ffa5fcd751e4b994',
+    port : 4848,
+    admin : 'adm847039386@qq.com',
     db : {
         database : 'drama',
         host : 'localhost',

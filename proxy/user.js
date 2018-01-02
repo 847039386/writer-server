@@ -64,7 +64,11 @@ const updateByID = (id ,newData ,options) => {
             if(err){
                 resolve({ success:false , msg :Config.debug ? err.message :'未知错误' })
             }else{
-                resolve({ data :data , success :true })
+                if(data){
+                    resolve({ success :true , data :data})
+                }else{
+                    resolve({ success :false , msg :'错误的ID'})
+                }
             }
         })
     })

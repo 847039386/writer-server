@@ -64,6 +64,7 @@ QQ.prototype = {
     },
 
     getUserInfo( openid ,token ){
+        console.log(openid ,token,'根本没进来')
         let result = { success :false }
         return new Promise((resolve ,reject) => {
             superagent.get(`${baseSite}/user/get_user_info`).query({

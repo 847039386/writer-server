@@ -2,11 +2,12 @@ const Admin = require('../models').Admin;
 const UUID = require('uuid');
 const Email = require('../common').Email;
 const Config = require('../config');
+const { Jwt } = require('../common')
 
 const login = (email ,code) => {
     let result = { success :false };
     return new Promise((resovle ,reject) => {
-        Admin.findOne({email :email},'pac pac_time token').exec((err ,admin) => {
+        Admin.findOne({email :email},'pac_time name pac').exec((err ,admin) => {
             if(err){
                 resolve(Object.assign(result,{ msg :Config.debug ? err.message :'未知错误' }));
             }else{
@@ -17,7 +18,15 @@ const login = (email ,code) => {
                     }else if(admin.pac != code){
                         resovle(Object.assign(result ,{ msg : '验证码错误！' }))
                     }else{
-                        resovle(Object.assign(result ,{ success :true , data :admin }))
+                        let token = Jwt.issueToken(Config.admin,Config.admin,Config.JwtKey);
+                        if(token){
+                            let newAdmin = admin.toObject();
+                            newAdmin.token = token;
+                            resovle(Object.assign(result ,{ success :true , data :newAdmin }))
+                        }else{
+                            resolve({ success:false , msg :'签发失败' })
+                        }
+                        
                     }
                 }else{
                     resovle(Object.assign(result ,{ success :false ,msg: '不存在的用户名' }))
@@ -30,10 +39,11 @@ const login = (email ,code) => {
 const register = (name ,email) => {
     let result = { success :false };
     return new Promise((resolve ,reject) => {
-        let adminModel = { email :email ,name :name  };
+        let pac = UUID.v4().substr(0,6);
+        let adminModel = { email :email ,name :name ,pac :pac };
         Admin.create(adminModel,(err ,admin) => {
             if(err){
-                resolve(Object.assign(result,{ msg :Config.debug ? err.message :'未知错误' }));
+                resolve(Object.assign(result,{ msg : '未知错误' }));
             }else{
                 resolve(Object.assign(result,{success :true ,data:admin}))
             }
@@ -46,7 +56,6 @@ const sendPac = (email) => {
     let pac = UUID.v4().substr(0,6);
     return new Promise((resolve ,reject) => {
         Admin.findOneAndUpdate({email },{
-            token :UUID.v1(),
             pac_time :Date.now(),
             pac :pac,
         })

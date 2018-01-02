@@ -1,7 +1,8 @@
-const Admin = require('../proxy').Admin
+const Admin = require('../proxy').Admin;
+const Config = require('../config')
 
 const register = async (ctx ,next) => {
-    let result = await Admin.register('超级管理员','1551541817@qq.com');
+    let result = await Admin.register('超级管理员',Config.admin);
     ctx.body = result;
 }
 

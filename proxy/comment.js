@@ -69,6 +69,25 @@ const removeById = (id) => {
     })
 }
 
+
+
+const remove = (conditions) => {
+    return new Promise((resolve ,reject) => {
+        if(conditions){
+            CommentSCH.remove(conditions).exec((err ,data) => {
+                if(err){
+                    resolve({ success:false , msg :Config.debug ? err.message :'未知错误' })
+                }else{
+                    resolve({ success :true , data :data})
+                }
+            })
+        }else{
+            resolve({ success :false , msg :'错误的conditions'})
+        } 
+    })
+}
+
+
 module.exports = {
-    find ,create ,removeById
+    find ,create ,removeById ,remove
 }
