@@ -13,7 +13,7 @@ router.get('/lauth' ,async (ctx, next) => {
   let code = query.code
   let state = query.state
   let redirectURI = encodeURIComponent(state)
-  ctx.redirect(`${Config.authRedirectURL}/#/lauth?code=${query.code}&state=${redirectURI}`)
+  ctx.redirect(`${Config.host}/#/lauth?code=${query.code}&state=${redirectURI}`)
 })
 
 

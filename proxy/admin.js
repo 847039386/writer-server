@@ -64,7 +64,7 @@ const sendPac = (email) => {
                 resolve(Object.assign(result,{ msg :Config.debug ? err.message :'未知错误' }));
             }else if(admin){
                 let pct = await Email.send(email,pac);
-                resolve(Object.assign(result,{success:pct}))       
+                resolve(Object.assign(pct))    ;   
             }else{
                 resolve(Object.assign(result,{msg :'不存在的用户名' }))
             }

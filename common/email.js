@@ -19,9 +19,9 @@ const send = async function(recipient ,code){
     return new Promise((resolve ,reject) => {
         transporter.sendMail(mailOptions, (error, info) => {
             if (error) {
-                resolve(false)
+                resolve({ success :false ,msg :error.message })
             }else{
-                resolve(true)
+                resolve({ success :true })
             }
         });
     })

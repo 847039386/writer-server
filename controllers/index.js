@@ -8,7 +8,8 @@ const Drama = require('./drama');
 const Comment = require('./comment')
 const Chapter = require('./chapter')
 const CF = require('./cf')
+const Relation = require('./relation')
 
 module.exports = {
-    Topic ,Admin ,Book ,Category ,User ,UserAuth ,Drama ,CF ,Comment ,Chapter
+    Topic ,Admin ,Book ,Category ,User ,UserAuth ,Drama ,CF ,Comment ,Chapter ,Relation
 }

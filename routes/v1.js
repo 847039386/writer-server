@@ -1,12 +1,12 @@
 const router = require('koa-router')();
-const { CF ,Topic ,Admin ,Book ,Category ,UserAuth ,Drama ,User ,Comment ,Chapter } = require('../controllers');
+const { CF ,Topic ,Admin ,Book ,Category ,UserAuth ,Drama ,User ,Comment ,Chapter ,Relation  } = require('../controllers');
 const { JwtAuth } = require('../middlewares/auth')
 
 router.prefix('/v1')
 
 router.get('/cf/home', CF.Home);
 
-router.get('/topic/fd', Topic.getResult);
+router.get('/topic/fd', Topic.getResult);       
 router.get('/topic/fdi', Topic.findById);
 router.post('/topic/ct' ,JwtAuth('admin') ,Topic.create);
 router.post('/topic/rm' ,JwtAuth('admin') ,Topic.removeById);
@@ -50,14 +50,17 @@ router.get('/comment/fd',Comment.findByDramaID);
 router.post('/comment/ct' ,JwtAuth('user') ,Comment.create);
 router.post('/comment/rm' ,JwtAuth('user') ,Comment.removeById);
 
-router.post('/us/hct', UserAuth.hostRegister);       //本站注册
-router.post('/us/hlg', UserAuth.hostLogin);          //本站登陆
+router.post('/us/hct', UserAuth.hostRegister);       // 本站注册
+router.post('/us/hlg', UserAuth.hostLogin);          // 本站登陆
 router.get('/us/hrun', UserAuth.findRepeatUName);    // 是否重复的用户名
 router.get('/us/fdbi',User.getInfo );
 router.get('/us/qlg' ,UserAuth.qqLogin)
 router.get('/us/presentation' ,User.getPresentation)
 router.post('/us/presentation' ,JwtAuth('user') ,User.setPresentation)
 
-
+router.get('/relation/fans' ,Relation.fans)        // 获取大佬的粉丝们
+router.get('/relation/stars' ,Relation.stars)      // 获取粉丝的大佬们
+router.get('/relation/isfollow' ,Relation.isfollow)  // 是否关注
+router.post('/relation/follow' ,JwtAuth('user') ,Relation.follow)     // 关注或取消关注
 
 module.exports = router

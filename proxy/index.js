@@ -7,7 +7,8 @@ const UserAuth = require('./user_auth');
 const Drama = require('./drama');
 const Comment = require('./comment');
 const Chapter =require('./chapter')
+const Relation =require('./relation')
 
 module.exports = {
-    Topic ,Admin ,Book ,Category ,User ,UserAuth ,Drama ,Comment ,Chapter
+    Topic ,Admin ,Book ,Category ,User ,UserAuth ,Drama ,Comment ,Chapter ,Relation
 }
