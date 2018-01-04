@@ -10,6 +10,11 @@ const cors = require('koa-cors');
 const index = require('./routes/index')
 const v1 = require('./routes/v1')
 
+const koa_redis = require('./middlewares').Redis
+
+// redis中间件
+app.use(koa_redis())
+
 // error handler
 onerror(app)
 

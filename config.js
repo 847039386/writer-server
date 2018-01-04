@@ -9,6 +9,11 @@ const config = {
         host : 'localhost',                         // 数据库地址
         port : 27017                                // 数据库端口
     },
+    redis : {                                       
+        host :'127.0.0.1',                          // redis 地址
+        port :6379,                                 // redis 端口
+        keyPrefix :'drama:'                         // redis 前缀
+    },
     email : {                                       // email设置
         smtp :'smtp.qq.com',
         user : '847039386@qq.com',

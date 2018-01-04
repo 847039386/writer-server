@@ -1,6 +1,7 @@
 const router = require('koa-router')();
 const { CF ,Topic ,Admin ,Book ,Category ,UserAuth ,Drama ,User ,Comment ,Chapter ,Relation  } = require('../controllers');
-const { JwtAuth } = require('../middlewares/auth')
+const { JwtAuth } = require('../middlewares').Auth
+const Reading = require('../middlewares').Reading
 
 router.prefix('/v1')
 
@@ -18,7 +19,7 @@ router.post('/adm/lg', Admin.login);
 
 router.get('/drama/fd', Drama.find);
 router.get('/drama/fdbui', Drama.findByUserID);
-router.get('/drama/details' ,Drama.details);
+router.get('/drama/details' ,Reading.drama,Drama.details);
 router.get('/drama/abstract' ,Drama.getAbstract);
 router.get('/drama/character' ,Drama.getCharacter);
 router.post('/drama/search', Drama.search);

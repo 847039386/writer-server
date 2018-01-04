@@ -110,6 +110,15 @@ const findById = (id ,options) => {
     })
 }
 
+
+/**
+ * 这里没调用一次 周、月浏览自增1 。定时任务每月每日清零周月浏览量。利用redis缓存客户端IP判断是否自增。这里只调取方法
+ * @param {*} id 文章id 
+ */
+const addReadingCount = (id) => {
+    return updateById(id , { $inc :{ reading_count :1 ,reading_week_count :1 ,reading_month_count :1 } } ,{ fields :'reading_count reading_week_count reading_month_count' });
+}
+
 module.exports = {
-    find ,create ,removeById ,findById ,updateById
+    find ,create ,removeById ,findById ,updateById ,addReadingCount
 }
