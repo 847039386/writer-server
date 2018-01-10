@@ -9,14 +9,11 @@ const cors = require('koa-cors');
 
 const index = require('./routes/index')
 const v1 = require('./routes/v1')
-
 const koa_redis = require('./middlewares').Redis
 
-// redis中间件
-app.use(koa_redis())
-
-// error handler
-onerror(app)
+require('./schedule');        // 定时任务在这里;
+app.use(koa_redis());          // redis中间件
+onerror(app);                  // error handler
 
 // middlewares
 app.use(bodyparser({

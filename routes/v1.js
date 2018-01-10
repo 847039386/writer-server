@@ -1,5 +1,5 @@
 const router = require('koa-router')();
-const { CF ,Topic ,Admin ,Book ,Category ,UserAuth ,Drama ,User ,Comment ,Chapter ,Relation  } = require('../controllers');
+const { CF ,Topic ,Admin ,Book ,Category ,UserAuth ,Drama ,User ,Comment ,Chapter ,Relation ,DramaLike  } = require('../controllers');
 const { JwtAuth } = require('../middlewares').Auth
 const Reading = require('../middlewares').Reading
 
@@ -63,5 +63,9 @@ router.get('/relation/fans' ,Relation.fans)        // 获取大佬的粉丝们
 router.get('/relation/stars' ,Relation.stars)      // 获取粉丝的大佬们
 router.get('/relation/isfollow' ,Relation.isfollow)  // 是否关注
 router.post('/relation/follow' ,JwtAuth('user') ,Relation.follow)     // 关注或取消关注
+
+router.get('/dlike/is' ,DramaLike.isLike)           // 是否点赞
+router.post('/dlike/ct' ,DramaLike.addLike)         // 点赞
+
 
 module.exports = router

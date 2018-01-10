@@ -14,6 +14,8 @@ const DramaSchema = new mongoose.Schema({
     reading_count  : { type :Number , default : 0 },      // 总阅读量
     reading_week_count : { type :Number , default : 0 },     // 周阅读数
     reading_month_count  : { type :Number , default : 0 },      // 月阅读数
+
+    like_count :{ type :Number , default : 0 },               //点赞数
 });
 
 module.exports = DramaSchema;
