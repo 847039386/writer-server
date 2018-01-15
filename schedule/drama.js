@@ -10,7 +10,7 @@ var resetDramaMonthReading = schedule.scheduleJob('0 0 0 1 * ?', function(){
 });
 
 // 每周一  将drama表内所有数据的 周阅读量归零
-var resetDramaWeekReading = schedule.scheduleJob('0 * * * * 1', function(){
+var resetDramaWeekReading = schedule.scheduleJob('0 0 0 * * 1', function(){
     Drama.update({},{ reading_week_count :0 },{multi :true},function(err,doc){
         console.log('drama :reading_week_count ' ,doc)
     })

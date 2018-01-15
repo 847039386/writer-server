@@ -1,15 +1,6 @@
 const User = require('../proxy').User;
 
-const create = async (ctx, next) => { 
-    let name = ctx.query.name;
-    let result = { success :false };
-    if(name){
-        result = await User.create(name ,'http://aaa')
-    }else{
-        result = Object.assign(result ,{ msg :'参数不符合规则。' });
-    }
-    ctx.body = result;
-} 
+
 
 const getInfo = async (ctx ,next) => {
     let id = ctx.query.id;
@@ -53,9 +44,27 @@ const setPresentation = async (ctx ,next) => {
     ctx.body = result;
 }
 
+const utAvatarAndName = async (ctx ,next) => {
+    let id = ctx.request.body.id;
+    let name = ctx.request.body.name;
+    let avatar = ctx.request.body.avatar;
+    let result = { success :false };
+    if(id && name && avatar){
+        if(name.length > 0 && name.length <= 10){
+            result = await User.updateByID(id,{ name ,avatar },{new:true});
+        }else{
+            result = Object.assign(result,{ msg :'昵称的长度应在1-10长度内'});
+        }
+    }else{
+        result = Object.assign(result,{ msg :'参数不符合规则。'});
+    }
+    ctx.body = result;
+}
+
 module.exports = {
     getInfo,
-    create,
     getPresentation,
-    setPresentation
+    setPresentation,
+    utAvatarAndName,
+    getAuthors
 }
