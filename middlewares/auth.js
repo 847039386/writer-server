@@ -1,4 +1,5 @@
 const Jwt = require('../common').Jwt;
+const Admin = require('../proxy').Admin;
 const Config = require('../config')
 
 const JwtAuth = (authType) => {
@@ -33,6 +34,33 @@ const JwtAuth = (authType) => {
     }
 }
 
+const isRoot = () => {
+    return async ( ctx , next ) => {
+        let result = { success :false }
+        if(ctx.headers['authorization']){
+            let decryptedData = Jwt.decrypt(ctx.headers['authorization'] ,Config.JwtKey);
+            if(decryptedData){
+                console.log(decryptedData)
+                if(decryptedData.iss){
+                    let result = await Admin.isRoot(decryptedData.aud)
+                    if(result.success){
+                        await next();
+                    }else{
+                        ctx.body = Object.assign(result,{ msg :'验证出错,没有权限' });
+                    }
+                }else{
+                    ctx.body = Object.assign(result,{ msg :'验证出错' });
+                }
+            }else{
+                ctx.body = Object.assign(result,{ msg :'验证失败' });
+            }
+        }else{
+            ctx.body = Object.assign(result,{ msg :'验证不通过' });
+        }
+    }
+}
+
 module.exports = {
     JwtAuth,
+    isRoot
 }
