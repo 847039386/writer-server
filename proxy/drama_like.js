@@ -1,6 +1,7 @@
 const DramaLike = require('../models').DramaLike;
 const Drama = require('../models').Drama
 const Config = require('../config');
+const UserNotify = require('./user_notify')
 
 /**
  * 
@@ -24,6 +25,11 @@ const Config = require('../config');
                                     resolve({ success:false , msg :Config.debug ? errd.message :'未知错误' })  
                                 }else{
                                     if(dramas){
+                                        Drama.findById(drama_id,'_id user_id').then(async (data) => {
+                                            if(data.user_id){
+                                                await UserNotify.createDramaRemind(user_id, 'like' ,data.user_id ,drama_id)
+                                            }
+                                        })
                                         resolve({ success:true , data :dramas }) 
                                     }else{
                                         resolve({ success:false , msg :'错误的剧本键' })  

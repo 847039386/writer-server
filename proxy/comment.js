@@ -1,4 +1,6 @@
 const CommentSCH = require('../models').Comment;
+const Drama = require('../models').Drama;
+const UserNotify = require('./user_notify')
 const Config = require('../config');
 
 const find = (drama_id ,page ,pageSize ,options) => {
@@ -51,6 +53,12 @@ const create = (user_id ,drama_id ,content) => {
             if(err){
                 resolve({ success:false , msg :Config.debug ? err.message :'未知错误' })
             }else{
+                // 因为评论失败(剧本ID不存在)会直接报错所以同步查找下数据添加消息
+                Drama.findById(drama_id,'_id user_id').then(async (data) => {
+                    if(data.user_id){
+                        await UserNotify.createDramaRemind(user_id, 'comment' ,data.user_id ,drama_id ,content)
+                    }
+                })
                 resolve({ data :data , success :true })
             }
         })

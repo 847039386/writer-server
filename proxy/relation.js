@@ -1,4 +1,5 @@
 const Relation = require('../models').Relation;
+const UserNotify = require('./user_notify')
 const User = require('../models').User;
 const Config = require('../config');
 
@@ -126,7 +127,8 @@ const follow = (from_user_id ,to_user_id) => {
                     })
                 }else{
                     // 无值则添加关注
-                    addFollow(from_user_id,to_user_id).then((followData) => {
+                    addFollow(from_user_id,to_user_id).then(async (followData) => {
+                        await UserNotify.createFansRemind(from_user_id,'follow',to_user_id)      // 发送消息
                         resolve({success :true ,data :true})
                     }).catch((followErr) => {
                         resolve({success :false ,msg :Config.debug ? followErr.message :'未知错误' })

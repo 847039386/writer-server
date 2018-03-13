@@ -22,6 +22,7 @@ const User          = require('./user');
 const UserAuth      = require('./user_auth');
 const Relation      = require('./relation');
 const DramaLike      = require('./drama_like');
+const UserNotify      = require('./user_notify');
 
 exports.Admin           = Admin;
 exports.Book            = Book;
@@ -33,4 +34,5 @@ exports.Topic           = Topic;
 exports.User            = User;
 exports.UserAuth        = UserAuth;
 exports.Relation        = Relation;
-exports.DramaLike        = DramaLike;
+exports.DramaLike       = DramaLike;
+exports.UserNotify      = UserNotify

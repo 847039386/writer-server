@@ -1,5 +1,5 @@
 const router = require('koa-router')();
-const { CF ,Topic ,Admin ,Book ,Category ,UserAuth ,Drama ,User ,Comment ,Chapter ,Relation ,DramaLike  } = require('../controllers');
+const { CF ,Topic ,Admin ,Book ,Category ,UserAuth ,Drama ,User ,Comment ,Chapter ,Relation ,DramaLike ,UserNotify  } = require('../controllers');
 const { JwtAuth ,isRoot } = require('../middlewares').Auth
 const Reading = require('../middlewares').Reading
 
@@ -84,7 +84,7 @@ router.post('/us/hrun', UserAuth.findRepeatUIdentifier);                        
 router.get('/us/fdbi',User.getInfo );                                                       // 获取用户基本信息
 router.get('/us/presentation' ,User.getPresentation)                                        // 获取用户简介
 router.post('/us/presentation' ,JwtAuth('user') ,User.setPresentation)                      // 设置用户简介
-router.post('/us/qlg' ,UserAuth.qqLogin)                                                    // qq登陆
+router.get('/us/qlg' ,UserAuth.qqLogin)                                                     // qq登陆
 router.post('/us/bs' ,JwtAuth('user') ,UserAuth.userBindStatus)                             // 用户绑定的所有信息 
 router.post('/us/sendpac' ,UserAuth.findEmailSendPAC)                                       // 用户绑定邮箱时发送验证码
 router.post('/us/bndemail' ,JwtAuth('user') ,UserAuth.bindUserEmail)                        // 修改邮箱或者绑定邮箱
@@ -107,5 +107,10 @@ router.post('/relation/follow' ,JwtAuth('user') ,Relation.follow)               
 router.get('/dlike/is' ,DramaLike.isLike)                                                   // 是否点赞
 router.post('/dlike/ct' ,DramaLike.addLike)                                                 // 点赞
 
+/**
+ * 用户消息 
+ */
+router.get('/unotify/fd',UserNotify.getNotifyByUserID)                                       // 查询用户消息 (指定id)
+router.post('/unotify/rmi',JwtAuth('user'),UserNotify.findUserIDAndRemove)                   // 根据用户ID 删除信息
 
 module.exports = router
