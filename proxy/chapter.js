@@ -1,5 +1,6 @@
-const Chapter = require('../models').Chapter;
+const { Chapter ,Drama } = require('../models');
 const Config = require('../config');
+const Async = require('async');
 
 const find = (page ,pageSize ,options) => {
     let result = { success :false }
@@ -10,8 +11,9 @@ const find = (page ,pageSize ,options) => {
         Chapter.find(options.query || {})
              .limit(pageSize || 10)
              .skip(realPage * pageSize)
-             .sort({ 'chapterorder' :1 })
-             .select(options.select || 'chapterorder title')
+             .sort(options.sort || { 'chapterorder' :1 })
+             .select(options.select || 'chapterorder title create_at')
+             .populate(options.populate || '')
              .exec((err ,chapters) => {
                 if(err){
                     reject(err)
@@ -34,8 +36,10 @@ const find = (page ,pageSize ,options) => {
     return new Promise((resolve ,reject) => {
         Promise.all([chaptersPromise,countPromise]).then((result) => {
             resolve({ 
-                data : result[0],
-                pagination : { total :result[1],current :page || 1 ,size :pageSize },
+                data : {
+                    list : result[0],
+                    pagination : { total :result[1],current :page || 1 ,size :pageSize }
+                },
                 success :true
             })
         }).catch((err) => {
@@ -47,11 +51,11 @@ const find = (page ,pageSize ,options) => {
 
 const create = (drama_id ,title ,content ) => {
     return new Promise((resolve ,reject) => {
-        Chapter.count({drama_id}).exec((err ,count) => {
+        Chapter.findOne({drama_id }).sort({'chapterorder' :-1 }).select({ _id : 0,chapterorder:1 }) .exec((err ,cap) => {
             if(err){
                 resolve({ success:false , msg :Config.debug ? err.message :'未知错误' })
             }else{
-                Chapter.create({ drama_id ,title ,content ,chapterorder : count + 1 },function(errcre ,data){
+                Chapter.create({ drama_id ,title ,content ,chapterorder : cap ? cap.chapterorder +1 : 1 ,wordCount:content ? content.length : 0 },function(errcre ,data){
                     if(errcre){
                         resolve({ success:false , msg :Config.debug ? errcre.message :'未知错误' })
                     }else{
@@ -181,7 +185,7 @@ const twoOrderID = (beginID ,endID) => {
 const findById = (id ,options) => {
     options = options || { };
     return new Promise((resolve ,reject) => {
-        Chapter.findById(id)
+        Chapter.findById(id).lean()
              .populate(options.populate || '')
              .select(options.select || '')
              .exec((err ,data) => {
@@ -254,6 +258,89 @@ const remove = (conditions) => {
     })
 }
 
+
+const chapterAndDirectory = (id ,did) => {
+    return new Promise((resolve ,reject) => {
+        Async.auto({
+            getChapter : (callback) => {            
+                Chapter.findById(id)
+                .populate({
+                    path :'drama_id'
+                    ,select :'title description like_count comment_count reading_count create_at'
+                    ,populate : { path :'category_id book_id user_id' ,select:'name avatar' } 
+                })
+                .exec((err ,dosc) => {
+                    if(err){
+                        callback(err)
+                    }else{
+                        callback(null, dosc)
+                    }
+                })
+            },
+            getChapters : (callback) => {     
+                Chapter.find({ drama_id :did }).sort({ 'chapterorder' : 1}).exec((err ,dosc) => {
+                    if(err){
+                        callback(err)
+                    }else{
+                        callback(null, dosc)
+                    }
+                })
+            }
+        },(err ,result) => {
+            if(err){
+                resolve({ success:false , msg :Config.debug ? err.message :'未知错误' })
+            }else{
+                resolve({ success :true , data :{ chapter : result.getChapter ,chapters:result.getChapters }})
+            }
+        })
+    })
+}
+
+
+/**
+ * 最新更新的剧集。。剧本去重
+ * @param size 条数 默认5
+ */
+const latelyUpdateDrama = (size) => {
+    size = size || 5;
+    return new Promise((resolve ,reject) => {
+        Chapter.aggregate([
+            {$sort: {"create_at": 1,}},
+            {
+                $group: { 
+                    _id: "$drama_id"
+                    ,drama_id :{ $last :"$drama_id"}
+                    ,chapter_id :{ $last:"$_id" }
+                    ,title :{ $last :"$title" }
+                },
+            },
+            {$sort: {"create_at":  -1,}},
+        ]).skip(0).limit(size).exec((err,dosc) => {
+            if(err){
+                resolve({ success :false , msg :Config.debug ? err.message :'未知错误'})
+            }else{
+                Chapter.populate(dosc,{ 
+                    path :'drama_id' 
+                    ,model :Drama 
+                    ,select :'title description' 
+                    ,populate : {
+                        path :'book_id'
+                        ,select :'name' 
+                    }
+                },(errP,populatedTransactions) => {
+                    if(errP){
+                        resolve({ success :false , msg :Config.debug ? errP.message :'未知错误'})
+                    }else{
+                        resolve({ success :true ,data :{ list :populatedTransactions } })
+                    }
+                })
+                
+            }
+        })
+    })
+}
+
+
 module.exports = {
-    find ,create ,removeById ,findById ,updateById ,updateOrder ,remove
+    find ,create ,removeById ,findById ,updateById ,updateOrder ,remove ,chapterAndDirectory ,latelyUpdateDrama
 }

@@ -1,91 +1,62 @@
 const Chapter = require('../proxy').Chapter;
 const Handling = require('../common').Handling;
 
-const findByDramaID = async (ctx, next) => { 
-    let result = { success :false };
-    let page = parseInt(ctx.query.page) || 1;
-    let size = parseInt(ctx.query.size) || 10;
+const chapterAndDirectory = async ( ctx ,next ) => {
     let id = ctx.query.id;
-    if(id){
-        result = await Chapter.find(page ,size ,{ query : { drama_id : id } });
+    let did = ctx.query.did;
+    let result = { success :false }
+    if(id && did){
+        result = await Chapter.chapterAndDirectory(id,did)
     }else{
-        result = Object.assign(result ,{ msg :'参数不符合规则' });
+        result = Object.assign(result,{ msg :'参数不符合规则' ,data : {}})
     }
-    ctx.body = result;
-} 
-
-const create = async (ctx, next) => { 
-    let title = Handling.strLength(ctx.request.body.title ,15);
-    let content = Handling.strLength(ctx.request.body.content ,5000);
-    let id = ctx.request.body.id
-    let result = { success :false };
-    if( title && content && id ){
-        result = await Chapter.create(id,title,content);
+    if(result.success){
+        let chapter = result.data.chapter;
+        chapter = Object.assign(chapter,{ content: chapter.content.replace(/\r\n/g, '<br/><br/>').replace(/\n/g, '<br/><br/>').replace(/\s/g, ' ') })
+        await ctx.render('drama-chapter', {
+            drama :chapter.drama_id,
+            chapter :chapter,
+            chapters :result.data.chapters
+        })
     }else{
-        result = Object.assign(result ,{ msg :'参数不符合规则。' });
+        await ctx.render('default/exception', { 
+            img:'',
+            title :'剧集错误',
+            desc :`剧本剧集可能不存在！`,
+            other :true
+        })
     }
-    ctx.body = result;
-} 
-
-const removeById = async (ctx ,next) => {
-    let id = ctx.request.body.id;
-    let result = { success :false };
-    if(id){
-        result = await Chapter.removeById(id);
-    }else{
-        result = Object.assign(result,{ msg :'参数不符合规则'})
-    }
-    ctx.body = result;
 }
 
-const findById = async ( ctx ,next ) => {
-    let id = ctx.query.id;
+
+const list = async ( ctx ,next ) => {
+    const id = ctx.query.id;
+    const page = ctx.query.page || 1;
+    const pageSize = ctx.query.pageSize || 999;
+    const title = ctx.query.title;
     let result = { success :false }
     if(id){
-        result = await Chapter.findById(id)
+        result = await Chapter.find(page,pageSize,{
+            query : { drama_id : id }
+            ,sort : { 'chapterorder' : -1}
+            ,select : 'title create_at chapterorder wordCount'
+        })
     }else{
-        result = Object.assign(result,{ msg :'参数不符合规则'})
+        result = Object.assign(result,{ msg :'参数不符合规则' ,data : {}})
     }
-    ctx.body = result;
-}
-
-const updateById = async ( ctx ,next ) => {
-    let id = ctx.request.body.id;
-    let title = Handling.strLength(ctx.request.body.title ,15);
-    let content = Handling.strLength(ctx.request.body.content ,5000);
-    let result = { success :false }
-    if( title && content && id ){
-        result = await Chapter.updateById(id,{ title ,content },{ new: true})
-    }else{
-        result = Object.assign(result,{ msg :'参数不符合规则'})
-    }
-    ctx.body = result;
-}
-
-const updateOrder = async ( ctx ,next ) =>{
-    let result = { success :false }
-    let bid = ctx.request.body.bid;
-    let eid = ctx.request.body.eid;
-    if(bid === eid){
-        result = Object.assign(result,{ msg :'参数一样驳回请求'});
-    }else if( bid && eid ){
-        if( eid === 'top'){
-            result = await  Chapter.updateOrder(bid);
-        }else {
-            result = await  Chapter.updateOrder(bid,eid);
+    await ctx.render('user/drama/chapters', {
+        drama_id :id,
+        drama_title : title,
+        chapters :result.data.list
+        ,current : {
+            total :result.data.pagination.total
+            ,page :result.data.pagination.current
+            ,pageSize :result.data.pagination.size
         }
-    }else{
-        result = Object.assign(result,{ msg :'参数不符合规则'});
-    }
-    ctx.body = result;
+    })
 }
-
 
 module.exports = {
-    findByDramaID,
-    create,
-    removeById,
-    findById,
-    updateById,
-    updateOrder
+    chapterAndDirectory,
+    list
 }

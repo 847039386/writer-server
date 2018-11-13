@@ -1,41 +1,35 @@
-const Drama = require('../proxy').Drama
-const Config = require('../config')
+const Drama = require('../proxy').Drama;
+const Config = require('../config');
+const reckonScore = require('../common').Score
 
-const expiration_time = 1 * 60 * 60 * 5;             //到期时间，秒为单位,这里设置五小时
 
-// 开启此功能必须设置nginx获取用户真实ip即可
+// UV浏览 加热度 0.2
 const drama = async ( ctx , next ) => {
     let drama_id = ctx.query.id; 
-    let ips = ctx.headers['x-forwarded-for'];
-    if(ips && drama_id){
-        try {
-            let ip_regular = /^(\d+\.\d+\.\d+\.\d+)/;
-            let ip_validate = ip_regular.exec(ips)
-            if(ip_validate && ip_validate[0]){
-                let ip = ip_validate[0];        // 用户的真实ip
-                let isReading = await ctx.redis.get(`reading-${drama_id}-${ip}`);
-                if(isReading){
-                    // 该IP浏览过了
-                    await next();
-                }else{
-                    // 该IP未浏览
-                    Drama.addReadingCount(drama_id).then((result) => {
-                        if(result.success){
-                            ctx.redis.set(`reading-${drama_id}-${ip}`,Date.now(),'EX',expiration_time);
-                        }
-                    })
-                    await next();
-                }
-            }else{
-                await next();
-            }
-        } catch (error) {
-            await next();
-        }
+    const onlyid = ctx.cookies.get('onlyid');           // 获取唯一服务器给用户的唯一标识符
+    const redisKey = await ctx.redis.sismember(`DRAMA-UV-ID-${drama_id}`,onlyid);
+    if(redisKey === 1){
+        await next();    // 浏览过
     }else{
+        Drama.addReadingCount(drama_id).then(async (result) => {
+            if(result.success){
+                const createAt = result.data.create_at;
+                const score = reckonScore.heat(createAt,0.1)
+                ctx.redis.sadd(`DRAMA-UV-ID-${drama_id}`,onlyid);
+                if(score > 0){
+                    const isSCORE = await ctx.redis.zrank(`DRAMA-SCORE-LIST`,`${drama_id}`);
+                    if(isSCORE == null){
+                        await ctx.redis.zadd(`DRAMA-SCORE-LIST`,score,`${drama_id}`);
+                    }else{
+                        await ctx.redis.zincrby("DRAMA-SCORE-LIST",score,`${drama_id}`);
+                    }
+                }
+            }
+        })
         await next();
     }
 }
+
 
 module.exports = {
     drama,

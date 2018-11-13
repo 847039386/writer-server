@@ -72,8 +72,10 @@ const find = (page ,pageSize ,options) => {
     return new Promise((resolve ,reject) => {
         Promise.all([booksPromise,countPromise]).then((result) => {
             resolve({ 
-                data : result[0],
-                pagination : { total :result[1],current :page || 1 ,size :pageSize },
+                data : {
+                    list : result[0],
+                    pagination : { total :result[1],current :page || 1 ,size :pageSize }
+                },
                 success :true
             })
         }).catch((err) => {

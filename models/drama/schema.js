@@ -10,12 +10,31 @@ const DramaSchema = new mongoose.Schema({
     character : { type :String },                       // 人物小传
     weight : { type :Number , default : 0 },            // 权重 越高排名越靠前
     create_at : { type :Date ,default :Date.now },       // 创建时间
+    state : { type :Number , default : 0 },                 // 状态  0：连载 1：完结          
 
-    reading_count  : { type :Number , default : 0 },      // 总阅读量
-    reading_week_count : { type :Number , default : 0 },     // 周阅读数
-    reading_month_count  : { type :Number , default : 0 },      // 月阅读数
+    uv : {
+       day : { type :Number ,default :0 },          // 日浏览
+       week : { type :Number ,default :0 },         // 周浏览
+       month : { type :Number ,default :0 },        // 月浏览
+       total : { type :Number ,default :0 }         // 总浏览
+    },
 
-    like_count :{ type :Number , default : 0 },               //点赞数
+    count : {
+        collect : { type :Number ,default :0 },     // 收藏数
+        comment : { type :Number ,default :0 },     // 评论数
+        like : { type :Number ,default :0 }         // 点赞数
+    },
+
+    status : {  type :Number ,default:0    },                   // 管理状态  0、可查看 1、不可查看
+    ustatus : {  type :Number ,default:0    } ,                // 用户管理状态 0、可查看 1,不可查看
+
+
+
+
+
+    // lable : { type :String },       
 });
+
+DramaSchema.index({ title: 'text', description: 'text' }); 
 
 module.exports = DramaSchema;

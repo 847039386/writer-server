@@ -1,5 +1,5 @@
 const router = require('koa-router')();
-const { CF ,Topic ,Admin ,Book ,Category ,UserAuth ,Drama ,User ,Comment ,Chapter ,Relation ,DramaLike ,UserNotify  } = require('../controllers');
+const { CF ,Topic ,Admin ,Book ,Category ,UserAuth ,Drama ,User ,Comment ,Chapter ,Relation ,Collect ,UserNotify ,ReplyComment ,Upload ,Log ,Like  } = require('../v_controllers');
 const { JwtAuth ,isRoot } = require('../middlewares').Auth
 const Reading = require('../middlewares').Reading
 
@@ -18,7 +18,7 @@ router.post('/topic/rm' ,JwtAuth('admin') ,Topic.removeById);       // 文章删
 /**
  * 管理员 
  */
-router.get('/adm/register', Admin.register);                        // 注册（废弃）
+// router.get('/adm/register', Admin.register);                        // 注册（废弃）
 router.get('/adm/fd', Admin.find);                                  // 查找所有管理员
 router.post('/adm/sendpac', Admin.sendPac);                         // 发送登陆验证码。
 router.post('/adm/lg', Admin.login);                                // 登陆
@@ -35,10 +35,18 @@ router.get('/drama/details' ,Reading.drama,Drama.details);              // 查�
 router.get('/drama/abstract' ,Drama.getAbstract);                       // 该剧本的大纲
 router.get('/drama/character' ,Drama.getCharacter);                     // 该剧本的人物小传
 router.post('/drama/search', Drama.search);                             // 模糊查询剧本
+// router.post('/drama/asearch' ,JwtAuth('admin') ,Drama.asearch);         // 管理员模糊查询剧本
+
+
 router.post('/drama/abstract' ,JwtAuth('user') ,Drama.setAbstract);     // 设置剧本大纲
 router.post('/drama/character',JwtAuth('user') ,Drama.setCharacter);    // 设置剧本人物小传
 router.post('/drama/ct',JwtAuth('user') , Drama.create);                // 剧本创建
+router.post('/drama/uut',JwtAuth('user') , Drama.userUpdateById);       // 剧本修改
 router.post('/drama/rm',JwtAuth('user') , Drama.remove);                // 剧本删除
+router.post('/drama/lmtshow',JwtAuth('admin') , Drama.lmtShow);         // 剧本限制展示 （管理员）
+
+
+
 
 /**
  * 剧本分集（章）
@@ -71,9 +79,10 @@ router.post('/category/rm' ,JwtAuth('admin') ,Category.removeById);     // 删�
 /**
  * 评论
  */
-router.get('/comment/fd',Comment.findByDramaID);                        // 指定剧本下的所有评论
-router.post('/comment/ct' ,JwtAuth('user') ,Comment.create);            // 在指定剧本下创建一条评论
-router.post('/comment/rm' ,JwtAuth('user') ,Comment.removeById);        // 删除某条评论
+// router.get('/comment/fd',Comment.findByDramaID);                         // 指定剧本下的所有评论
+router.get('/comment/fd',Comment.getCommentAndReply);                       // 指定剧本下的所有评论
+router.post('/comment/ct' ,JwtAuth('user') ,Comment.create);                // 在指定剧本下创建一条评论      有用
+router.post('/comment/rm' ,JwtAuth('user') ,Comment.removeById);            // 删除某条评论
 
 /**
  * 用户
@@ -84,14 +93,29 @@ router.post('/us/hrun', UserAuth.findRepeatUIdentifier);                        
 router.get('/us/fdbi',User.getInfo );                                                       // 获取用户基本信息
 router.get('/us/presentation' ,User.getPresentation)                                        // 获取用户简介
 router.post('/us/presentation' ,JwtAuth('user') ,User.setPresentation)                      // 设置用户简介
-router.get('/us/qlg' ,UserAuth.qqLogin)                                                     // qq登陆
-router.post('/us/bs' ,JwtAuth('user') ,UserAuth.userBindStatus)                             // 用户绑定的所有信息 
-router.post('/us/sendpac' ,UserAuth.findEmailSendPAC)                                       // 用户绑定邮箱时发送验证码
-router.post('/us/bndemail' ,JwtAuth('user') ,UserAuth.bindUserEmail)                        // 修改邮箱或者绑定邮箱
-router.post('/us/bndunop' ,JwtAuth('user') ,UserAuth.bindHostUserNameOrUpdatePassword)      // 修改密码或者绑定本站用户名
+router.post('/us/constraintLogin' ,JwtAuth('admin') ,User.constraintLogin)                  // 限制登陆  
+router.get('/us/list', User.getAuthors);                                                    // 用户列表
+router.post('/us/asearch', User.asearch);                                                   // 查询符合内容的用户列表        
+router.post('/us/upemail' ,JwtAuth('user') ,UserAuth.changeEmail)                           // 修改邮箱
+router.post('/us/bndemail' ,JwtAuth('user') ,UserAuth.bindUserEmail)                        // 绑定邮箱
+
+/**
+ * 发送验证码
+ */
+router.post('/us/sendpac',JwtAuth('user') ,UserAuth.findEmailSendPAC)                       // 用户绑定邮箱时发送验证码
+router.post('/us/upemailpac' ,JwtAuth('user') ,UserAuth.changeEmailPac)                     // 修改邮箱发送验证码
+
+router.post('/us/uidsendpac',JwtAuth('user') ,UserAuth.findUserAuthSendEmailPAC)            // 根据用户id发送验证码
+
+                  
+
+
+router.post('/us/bnduname' ,JwtAuth('user') ,UserAuth.bindHostUserName)                     // 绑定本站用户名
 router.post('/us/utpwbmail' ,JwtAuth('user') ,UserAuth.updatePassByEmail)                   // 根据email发出的验证码修改密码
 router.post('/us/bndqq' ,JwtAuth('user') ,UserAuth.bindUserQQ)                              // 绑定QQ邮箱
 router.post('/us/utan' ,JwtAuth('user') ,User.utAvatarAndName)                              // 设置用户昵称与头像
+router.post('/us/upload_avatar' ,JwtAuth('user') ,Upload.userAvatar);                       // 上传用户头像
+router.post('/us/utname' ,JwtAuth('user') ,User.utName)                                    // 设置用户头像
 
 /**
  * 用户与编剧关系
@@ -102,15 +126,35 @@ router.get('/relation/isfollow' ,Relation.isfollow)                             
 router.post('/relation/follow' ,JwtAuth('user') ,Relation.follow)                           // 关注或取消关注
 
 /**
- * 赞行为 
+ * 收藏行为 
  */
-router.get('/dlike/is' ,DramaLike.isLike)                                                   // 是否点赞
-router.post('/dlike/ct' ,DramaLike.addLike)                                                 // 点赞
-
+router.get('/dlike/is' ,Collect.isLike)                                                     // 是否点收藏
+router.post('/dlike/collect' ,JwtAuth('user') ,Collect.collect)                             // 收藏
+router.get('/dlike/collectlist' ,Collect.collectList)                                       // 用户收藏列表
 /**
  * 用户消息 
  */
-router.get('/unotify/fd',UserNotify.getNotifyByUserID)                                       // 查询用户消息 (指定id)
-router.post('/unotify/rmi',JwtAuth('user'),UserNotify.findUserIDAndRemove)                   // 根据用户ID 删除信息
+router.get('/unotify/fd',UserNotify.getNotifyByUserID)                                              // 查询用户消息 (指定id)
+router.post('/unotify/rmi',JwtAuth('user'),UserNotify.removeByID)                           // 删除指定消息ID
+router.post('/unotify/rmuall',JwtAuth('user'),UserNotify.findUserIDAndRemove)                          // 根据用户ID 删除信息
+router.post('/notify/userPrivateLetter',JwtAuth('user'),UserNotify.createUserPrivateLetter)         // 发送用户私信
+router.post('/notify/adminPrivateLetter',JwtAuth('admin'),UserNotify.createAdminPrivateLetter)      // 发送管理员私信
+/**
+ * 日志 
+ */
+router.get('/log/fdopid',Log.findDataByOpid)                        //查看日志
+/**
+ * 回复评论
+ */
+router.post('/comment_reply/send',JwtAuth('user') ,ReplyComment.add);                   //  添加评论回复
+router.get('/comment_reply/fd', ReplyComment.find);                                     //  查询评论回复
+
+
+/**
+ * 赞
+ */
+router.post('/like/drama/thumbsUp',JwtAuth('user'),Like.thumbsUp)                        // 点赞
+
+router.get('/api/fake_chart_data',Drama.fakeChartData);
 
 module.exports = router

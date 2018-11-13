@@ -35,10 +35,11 @@ const createUserAnnounce = ( content , user_id ) => {
  *      用户A    like(喜欢)、comment(评论)   用户B(你)的    《剧本》    这篇文章(drama)
  */
 
- const createDramaRemind = ( sender ,action ,user_id ,drama_id ,content ) => {
+ const createRemind = ( notify ) => {
     let result = { success :false };
+    notify = notify || {  }
     return new Promise((resolve ,reject) => {
-        UserNotify.create({ type :2 , action ,targetType : 'drama' ,drama_id ,sender ,content ,user_id },(err, data) => {
+        UserNotify.create(notify,(err, data) => {
             if(err){
                 resolve(Object.assign(result,{ msg :Config.debug ? err.message :'未知错误' }));
             }else{  
@@ -71,6 +72,40 @@ const createFansRemind = ( sender ,action ,user_id  ) => {
         })
     });
  }
+
+// 发送私信
+ const createUserPrivateLetter = ( sender ,user_id ,content,action  ) => {
+    let result = { success :false };
+    return new Promise((resolve ,reject) => {
+        UserNotify.create({ type :3 , action ,targetType : 'letter' ,sender ,user_id ,content },(err, data) => {
+            if(err){
+                resolve(Object.assign(result,{ msg :Config.debug ? err.message :'未知错误' }));
+            }else{  
+                resolve(Object.assign(result,{ success :true ,data :data }));
+            }
+        })
+    });
+ }
+
+ const createAdminPrivateLetter = ( user_id ,content ) => {
+    let result = { success :false };
+    return new Promise((resolve ,reject) => {
+        UserNotify.create({ type :3 , action :'normal' ,targetType : 'admin' ,user_id ,content },(err, data) => {
+            if(err){
+                resolve(Object.assign(result,{ msg :Config.debug ? err.message :'未知错误' }));
+            }else{  
+                resolve(Object.assign(result,{ success :true ,data :data }));
+            }
+        })
+    });
+ }
+
+
+
+
+
+
+
 
 /**
  * 查询所有消息
@@ -115,8 +150,10 @@ const createFansRemind = ( sender ,action ,user_id  ) => {
     return new Promise((resolve ,reject) => {
         Promise.all([userNotifyPromise,countPromise]).then((result) => {
             resolve({ 
-                data : result[0],
-                pagination : { total :result[1],current :page || 1 ,size :pageSize },
+                data : {
+                    list : result[0],
+                    pagination : { total :result[1],current :page || 1 ,size :pageSize }
+                },
                 success :true
             })
         }).catch((err) => {
@@ -148,14 +185,46 @@ const findUserIDAndRemove = ( user_id ) => {
             resolve(Object.assign(result,{ msg :'删除属性为空' }));
         }
     });
+}
 
-    
+const removeByID = ( id ) => {
+    let result = { success :false }
+    return new Promise((resolve ,reject) => {
+        if( id ){
+            UserNotify.findByIdAndRemove(id).exec((err ,data) => {
+                if(err){
+                    resolve(Object.assign(result,{ msg :Config.debug ? err.message :'未知错误' }));
+                }else{  
+                    resolve(Object.assign(result,{ success :true ,data :data }));
+                }
+            })
+        }else{
+            resolve(Object.assign(result,{ msg :'删除属性为空' }));
+        }
+    });
+}
+
+const create = (notify) => {
+    let result = { success :false }
+    return new Promise((resolve ,reject) => {
+        UserNotify.create(notify,(err, data) => { 
+            if(err){
+                resolve(Object.assign(result,{ msg :'创建失败' }));
+            }else{
+                resolve(Object.assign(result,{ success :true ,data :data }));
+            }
+        })
+    });
 }
 
 module.exports = {
     find,
     createUserAnnounce,
-    createDramaRemind,
+    createRemind,
     createFansRemind,
-    findUserIDAndRemove
+    findUserIDAndRemove,
+    createUserPrivateLetter,
+    createAdminPrivateLetter,
+    removeByID,
+    create
 }

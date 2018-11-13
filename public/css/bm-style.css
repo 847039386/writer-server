@@ -1,0 +1,151 @@
+
+/** 卡片 */
+.card{position: relative; display: block; padding: 0; margin-bottom: 20px; overflow: hidden; border: 1px solid #ddd; border-radius: 4px; -webkit-box-shadow: 0 1px 2px rgba(0, 0, 0, .075); box-shadow: 0 1px 2px rgba(0, 0, 0, .075); -webkit-transition: all .4s cubic-bezier(.175, .885, .32, 1); -o-transition: all .4s cubic-bezier(.175, .885, .32, 1); transition: all .4s cubic-bezier(.175, .885, .32, 1);}
+a{text-decoration: none; cursor: pointer;}
+a, area{outline: none; blr: expression(this.onFocus=this.blur());}
+.card:hover{text-decoration: none; -webkit-box-shadow: 0 1px 5px rgba(0, 0, 0, .175); box-shadow: 0 1px 5px rgba(0, 0, 0, .175);}
+/* a:hover, a:active{outline: none;} */
+a:hover{text-decoration: underline; outline: none;}
+a:hover, a:focus{color: #0d3d88; text-decoration: underline;}
+a:active, a:hover{outline: 0;}
+a{color: #145ccd; text-decoration: none; -webkit-transition: all .4s cubic-bezier(.175, .885, .32, 1); -o-transition: all .4s cubic-bezier(.175, .885, .32, 1); transition: all .4s cubic-bezier(.175, .885, .32, 1);}
+a{background: transparent;}
+.card > img{display: block; max-width: 100%; height: auto; filter: alpha(opacity=100); opacity: 1;}
+.card .card-heading{display: block; padding: 10px; margin: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;}
+.card .card-content, .card .card-actions{padding: 0 10px 10px 10px; overflow: hidden; text-overflow: ellipsis;}
+.card .card-content, .card .card-actions{padding: 0 10px 10px 10px; overflow: hidden; text-overflow: ellipsis;}
+
+
+b, strong{font-weight: bold;}
+.text-gray, .text-muted {
+    color: #808080;
+}
+*, *:before, *:after {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
+
+/** 首页 */
+
+.bm-list-warp{ font-family: 'Microsoft Yahei'; width: 100%; }
+.bm-list-warp .warp-title { border-bottom: 1px solid #E0E0E0; margin-bottom: 20px;  }
+.bm-list-warp .warp-title p { border-left: 4px #C7171C solid; font-size: 18px; padding-left: 16px; height: 20px; margin-bottom: 9px; line-height: 20px; font-weight: 600; color: #2e2e2e; }
+    /** 第一种形态 通用一部分 */
+.bm-list-warp div.warp-tList > dl{ height: 18px; line-height: 18px; font-size: 14px; color: #292929; display: table;  margin-bottom: 12px; }
+.bm-list-warp div.warp-tList > dl > dt { display: table-cell; width: 18px; height: 18px; background: #8B8B8B; text-align: center; line-height: 18px; color: #FFF; }
+.bm-list-warp div.warp-tList > dl:first-child dt{background:#C7171C;}
+.bm-list-warp div.warp-tList > dl:nth-child(2) dt{background:#E57325;}
+.bm-list-warp div.warp-tList > dl:nth-child(3) dt{background:#E5C024;}
+.bm-list-warp div.warp-tList > dl > dd { display: table-cell; text-indent: 16px;  text-overflow: ellipsis; height: 12px; }
+.bm-list-warp div.warp-tList > dl > dd a {   width: 100%;color: #292929; }
+    /** 第二种形态 */
+.bm-list-warp div.warp-pList-2 { overflow: hidden; }
+.bm-list-warp div.warp-pList-2 .warp-tList { overflow: hidden; }
+.bm-list-warp div.warp-pList-2 .warp-tList > dl { width: 48%; float: left; margin-right: 2%; }
+.bm-list-warp div.warp-pList-2 .warp-taList > dl { margin-bottom: 20px; }
+.bm-list-warp div.warp-pList-2 .warp-taList > dl dt { color: #2e2e2e; font-size: 16px; font-weight: 700; display: block; }
+.bm-list-warp div.warp-pList-2 .warp-taList > dl dd.actions{ margin: 8px 0; }
+.bm-list-warp div.warp-pList-2 .warp-taList > dl dd.content{ height: 66px; line-height: 22px; color: grey; overflow: hidden; }
+    /** 第3种形态 */
+.bm-list-warp div.warp-pList-3 dl { display: table; margin-bottom: 12px; font-size: 14px;  height: 18px; line-height: 18px;}
+.bm-list-warp div.warp-pList-3 dl dt ,.bm-list-warp div.warp-pList-3 dl dt{ display: table-cell; }
+.bm-list-warp div.warp-pList-3 dl dt { width: 200px; }
+.bm-list-warp div.warp-pList-3 dl dt { color: #7f7f7f; }
+.bm-list-warp div.warp-pList-3 dl dt a{ color: #424242;}
+
+.author-warp { border: 1px solid #E0E0E0; padding: 28px; }
+.author-warp .title{ width: 350px; margin: 0 auto; margin-bottom: 20px;}
+.author-warp .pList { display: table; width: 100%; }
+.author-warp .pList dl{ display: table-cell; width: 166px; overflow: hidden;  }
+.author-warp .pList dl dd { float: left; }
+.author-warp .pList dl dd img{ width: 50px; height: 50px; }
+.author-warp .pList dl dd p { line-height: 25px; margin-left: 6px; overflow: hidden; text-overflow: ellipsis; width: 110px; height: 25px;}
+
+
+/** drama-list.html 剧本列表页 */
+
+.bc-submenu{ /** box-shadow: 0 0 8px #DDD; -webkit-box-shadow: 0 0 8px #DDD; */ margin: 30px 0 50px; }
+.bc-submenu > div{ margin: 5px; }
+.bc-submenu > div dl{display: block; border-bottom: 1px solid #EEE; padding: 10px 0; overflow: hidden; width: 930px;}
+.bc-submenu > div dl dt{display: block; float: left; width: 80px; text-align: left; height: 22px; line-height: 22px; padding-right: 6px;}
+.bc-submenu > div dl dt a{color: #e4393c; font-weight: bold; font-size: 16px;}
+.bc-submenu > div dl dd{display: block; overflow: hidden;}
+.bc-submenu > div dl dd a{ color: #737373; font-size: 14px; padding: 0 8px; height: 22px; line-height: 22px; margin: 4px 0;}
+.bc-submenu > div dl dd a.a-this{ color: #234de2; font-size: 18px; font-weight: 600; }
+
+.drama-list { min-height: 450px;}
+.drama-list > ul > li { margin-bottom: 30px;padding: 10px; border-bottom:1px solid #EEE;  }
+.drama-list > ul > li .header { font-size: 16px; padding-bottom: 10px; }
+.drama-list > ul > li .header a{ font-weight: bold; color: #292929;}
+.drama-list > ul > li .content { color: #808080; font-size: 14px; padding-bottom: 10px; overflow: hidden; }
+.drama-list > ul > li .content .c1 { width:740px; float: left; line-height: 22px; }
+.drama-list > ul > li .content .c2 { width: 160px; float: left;  line-height: 66px; text-align: center;font-size: 30px; font-weight: bold; color: #c8161d;  }
+.drama-list > ul > li .footer { overflow: hidden; font-size: 14px;  }
+.drama-list > ul > li .footer .ff { float: left;  }
+.drama-list > ul > li .footer .f1 { width: 210px; } 
+.drama-list > ul > li .footer .f1 a{color: #8590a6;}
+.drama-list > ul > li .footer .f2 { width: 450px; } 
+.drama-list > ul > li .footer .f3 { width: 240px; color: #666666; } 
+
+
+/* drama-article.html 剧本文章页面 */
+.drama_article { width: 1000px; padding: 50px 140px; margin:auto; background: #fff; }
+.drama_article .atitle{ font-size: 24px; font-weight: 800; margin-bottom: 30px; text-align: center; }
+.drama_article .title{ font-size: 20px; color: #4c4c4c;margin-bottom: 30px; font-weight: 600;  }
+.drama_article .author{ font-size: 16px; margin-bottom: 30px;  text-align: center; }
+.box .box_content{height: 160px;overflow: hidden;}
+#introduce:checked + .box_content{height: auto;}
+.box label{ font-size: 16px; color: #234de2; }
+#introduce ~ label[for="introduce"]:before { content: "更多内容";}
+#introduce:checked ~ label[for="introduce"]:before { content: "";}
+.box { position: relative;}
+.box label{width: 100%;display: block;margin: auto;cursor: pointer; text-align: center;}
+#introduce{display:none;}
+.drama_article .collect{ background: #234de2; color: #fefefe; font-size: 16px; width: 100px; height: 35px; }
+.drama_article .content{ font-size: 16px; line-height: 30px; color: #7f7f7f;margin-bottom: 50px;}
+.drama_article ul.chapter_box{ overflow: hidden; display: block; padding: 10px; font-size: 14px; }
+.drama_article ul.chapter_box li { margin-bottom: 8px; float: left; width: 50%; cursor: pointer; }
+.drama_article .chapter_description{ font-size: 14px; color: #7f7f7f; font-weight: 400; margin-bottom: 28px;}
+.drama_article .chapter_description span{ font-size: 14px; color: #234de2; cursor: pointer; display: inline-block; margin:0 14px; }
+
+
+    /** 评论 */
+.bb-comment{color:#000;margin:auto;font-family:Microsoft YaHei,Arial,Helvetica,sans-serif;zoom:1;min-height:100px;background:#fff}
+.bb-comment img{border:none;vertical-align:middle}
+.bb-comment a{outline:0;color:#00a1d6;text-decoration:none;cursor:pointer}
+.bb-comment .comment-list .list-item .user-face{float:left;margin:24px 0 0 5px;position:relative}
+.bb-comment .comment-list .list-item .user-face img{width:48px;height:48px;border-radius:50%}
+.bb-comment .comment-list .list-item .no-border{border-top:none}
+.bb-comment .comment-list .list-item .con{position:relative;margin-left:85px;padding:22px 0 14px;border-bottom:1px solid #e5e9ef}
+.bb-comment .comment-list .list-item .user{font-size:12px;font-weight:700;line-height:18px;padding-bottom:4px;display:block;word-wrap:break-word}
+.bb-comment .comment-list .list-item .user .name:hover{color:#00a1d6}
+.bb-comment .comment-list .list-item .user .name{margin-right:5px;color:#6d757a}
+.bb-comment .comment-list .list-item .user .top{color:#f25d8e!important;margin-right:5px;}
+.bb-comment .comment-list .list-item .text{line-height:20px;padding:2px 0;font-size:14px;text-shadow:none;overflow:hidden;word-wrap:break-word;word-break:break-word}
+.bb-comment .comment-list .list-item .info{color:#99a2aa;line-height:26px;font-size:12px}
+.bb-comment .comment-list .list-item .info>span{margin-right:20px}
+.bb-comment .comment-list .list-item .info .plad a{color:#99a2aa}
+.bb-comment .comment-list .list-item .info .plad a:hover{color:#00a1d6}
+.bb-comment .comment-list .list-item .info .btn-hover{padding:0 5px;border-radius:4px;margin-right:15px;cursor:pointer;display:inline-block}
+.bb-comment .comment-list .list-item .info .btn-hover:hover{color:#00a1d6;background:#e5e9ef}
+.bb-comment .comment-list .list-item .reply-box .reply-item{padding:10px 0}
+.bb-comment .comment-list .list-item .reply-box .reply-item .reply-con{margin-left:34px}
+.bb-comment .comment-list .list-item .reply-box .reply-item .reply-face img{width:24px;height:24px;border-radius:50%}
+.bb-comment .comment-list .list-item .reply-box .reply-item .reply-face{float:left;margin:5px 0 0}
+.bb-comment .comment-list .list-item .user .text-con{font-weight:400;font-size:14px;line-height:20px}
+.bb-comment .reply-actions{margin-top:10px;display:none}
+.bb-comment .reply-actions button,.bb-comment .reply-actions input{display:inline-block}
+.bb-comment .reply-actions input{width:80%}
+.bb-comment .reply-actions button{width:15%}
+.bb-comment .reply-actions.show{display:block}
+.bb-comment .no-more-reply{color: #99a2aa; text-align: center; padding: 30px 0; font-size: 12px;}
+.bb-comment .comment-page .layui-laypage a ,.bb-comment .comment-page .layui-laypage span{color: #222; cursor: pointer; text-align: center; border-radius: 4px; background-color: #fff; border: 1px solid #ddd; background-image: none; transition: all .2s; font-size: 14px; min-width: 15px; margin: 0 2px; padding: 0 10px; display: inline-block; height: 36px; line-height: 36px; text-decoration: none;}
+.bb-comment .creply-box .layui-laypage a ,.bb-comment .creply-box .layui-laypage span{color: #222; cursor: pointer; text-align: center; margin: 0 4px; text-decoration: none; line-height: 26px; font-size: 12px; padding: 0; background: #fff; border:none;}
+.bb-comment .creply-box .layui-laypage .layui-laypage-curr .layui-laypage-em{background-color: transparent;}
+.bb-comment .creply-box .layui-laypage .layui-laypage-curr em{color: #00a1d6; font-weight: 700;}
+.bb-comment .creply-box .layui-laypage a:hover{color: #00a1d6;}
+
+
+.showy_article{width:143px; height:349px; position: fixed; float: right; left:50%; top:20%; z-index: 999; margin-left:530px; background: red;}

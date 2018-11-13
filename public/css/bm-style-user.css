@@ -1,0 +1,168 @@
+body{
+    background: #F9F9F9;
+}
+
+/** 主内容框*/
+.bm-container-adm { margin:50px auto;width:1200px; padding:20px 0 ;background: #fff; }
+.bm-container-uel {width: 230px; float: left; border-right: 1px solid #e8e8e8;}
+.bm-container-uer { float: right; width: 880px; padding: 8px 40px; background: #fff;  }
+
+/** 用户左侧列表 */
+.mp-aside{ background: #fff;  }
+.mp-aside .aside-action-list li.on a, .client_layouts_aside .mp-aside .aside-action-list li:hover a {color: #457eff;}
+.mp-aside{font-size: 14px; padding: 30px 34px 30px; height: 70%; }
+.mp-aside ul{padding: 0; list-style: none;}
+.mp-aside .aside-item{margin-top: 24px;}
+.mp-aside .aside-item:first-child{margin-top: 0;}
+.client_layouts_aside .mp-aside .aside-item-title{padding-left: 42px; position: relative; color: #9d9d9d;}
+.mp-aside .aside-item-title.on a, .client_layouts_aside .mp-aside .aside-item-title:hover a{color: #457eff;}
+.mp-aside .aside-action{color: #333;}
+.mp-aside .aside-item-title{position: relative; color: #9d9d9d;}
+.mp-aside .aside-action-list li{font-size: 14px; margin-top: 14px;}
+.mp-aside .aside-action-list li a{display: block; padding-left: 42px;}
+.bumt { color: rgba(0,0,0,.85);
+    font-size: 20px;
+    font-weight: 500;
+    line-height: 28px;
+    margin-bottom: 12px; }
+
+
+/** 用户后台首页头部 */
+.index-top-statistics{margin-top: 30px; overflow: hidden; display: -ms-flexbox; display: flex; margin-bottom: 30px;}
+.index-top-statistics .index-article-publish-btn-wrap{position: relative;}
+.index-top-statistics .index-article-publish-btn.task{width: 168px;}
+.index-top-statistics .index-article-publish-btn{width: 134px; height: 134px; position: relative; margin-right: 30px; background: #457eff; border-radius: 3px; text-align: center; color: #fff; line-height: 1em; cursor: pointer; display: -ms-flexbox; display: flex; -ms-flex-direction: column; flex-direction: column; -ms-flex-align: center; align-items: center; -ms-flex-pack: center; justify-content: center;}
+.index-top-statistics .index-statistics-main{display: -ms-flexbox; display: flex; -ms-flex: 1 1; flex: 1 1; height: 134px; border: 1px solid #ececec; border-radius: 3px;}
+.index-top-statistics .index-statistics-item{position: relative; -ms-flex: 1 1; flex: 1 1; padding: 15px 0; text-align: center; cursor: pointer;}
+.index-top-statistics .index-statistics-item:hover ,.index-top-statistics .index-article-publish-btn:hover{text-decoration: none;}
+.index-top-statistics .bc-title{font-size: 14px; color: #666; padding-top: 15px; margin: 0;}
+.index-top-statistics .index-top-statistics-number{font-size: 44px; line-height: 64px; color: #333; margin: 0;}
+.index-top-statistics .index-statistics-item .border-line{position: absolute; top: 26px; right: 0; height: 80px; border-right: 1px solid #eee;}
+
+.i-drama-list{ background: #fff; border: 1px solid #eee;  }
+.i-drama-list > .title { font-size: 18px; border-bottom: 1px solid #eee; padding: 10px 10px; margin-bottom: 10px; }
+.i-drama-list ul li{ height: 32px; line-height: 32px; margin-bottom: 5px;padding: 10px;}
+.i-drama-list ul li:hover{ background: #FBFBFB;text-decoration: none;}
+.i-drama-list ul li .title{ width: 350px; display: inline-block; font-size: 14px; }
+
+
+/** 用户剧本管理列表 */
+.drama-list{ position: relative; -ms-flex: 1 1; flex: 1 1; font-size: 14px;}
+.article-list-wrap{display: -ms-flexbox;  display: flex; padding-bottom: 20px; border-bottom: 1px solid #eee; }
+.article-list-wrap .article-list-content{-ms-flex: 1 1; flex: 1 1;padding: 16px 20px;height: 88px;background: #f6f6f6;  }
+.article-list-wrap .article-list-content .title-warp{height: 20px; line-height: 20px; display: -ms-flexbox; display: flex; margin-bottom: 16px;}
+.article-list-wrap .article-list-content .title-warp .title-link{max-width: 600px; font-size: 16px; line-height: 18px; color: #333; -o-text-overflow: ellipsis; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;}
+.article-list-wrap .article-list-content .article-info-wrap{margin-bottom: 15px; color: #9d9d9d;}
+
+.article-list-content .title-warp{height: 20px; line-height: 20px; display: -ms-flexbox; display: flex; margin-bottom: 16px;}
+.article-list-wrap .article-list-content .article-info-wrap .article-time{margin-right: 20px;}
+.article-list-wrap .article-list-content .article-info-wrap .article-status-desc, .client_pages_content .content-manage-wrap .article-list-wrap .article-list-content .article-info-wrap .article-time{margin-right: 20px;}
+.article-data-wrap span{display: inline-block; line-height: 14px; margin-right: 10px; padding-right: 10px; border-right: 1px solid #eee; color: #9d9d9d;}
+
+.article-list-wrap .article-list-content > .article-action-wrap{text-align: right; margin-top: 16px;}
+.article-list-wrap .article-list-content > .article-action-wrap .article-action-btn {margin-left: 20px;color: #457eff;cursor: pointer;}
+.article-list-wrap > .article-action-wrap .layui-btn { float: left; width: 75px; height: 60px; border-radius:0; display: block; line-height: 60px; }
+
+
+
+/** 用户公开信息 info页面 */
+
+.user_pinfo .messgae-item {padding:0;border-bottom:1px solid #eee;font-size:14px;clear:both;overflow:hidden;}
+.user_pinfo .messgae-item .item-img {width:40px;height:40px;margin:20px 15px;vertical-align:middle;}
+.user_pinfo .messgae-item .item-name {float:left;height:70px;line-height:36px;padding:17px 0 0;width:100px;}
+.user_pinfo .messgae-item .item-mes {min-height:70px;line-height:36px;padding:17px 0 0;display:inline-block;max-width:500px;margin-left:0;word-break:break-all;word-wrap:break-word;}
+.user_pinfo .messgae-item .item-right {float:right;}
+.user_pinfo .messgae-item .item-function {text-align:right;width:240px;margin-top:15px;float:right;color:#457eff;cursor:pointer;height:70px;line-height:36px;}
+
+.update_info_ck { padding: 30px 34px;color: rgb(51, 51, 51);}
+.update_info_ck ._title { font-size: 22px;}
+.update_info_ck ._body{ padding: 30px 0 40px; font-size: 14px;  }
+.update_info_ck ._body li{list-style: disc;margin: 20px 0px; margin-left: 20px; }
+.update_info_ck ._body input{ height: 46px; font-size: 14px; border-color: #eee;}
+.update_info_ck ._body .avata-modal{display: flex;ms-flex-flow: row nowrap;display: -ms-flexbox; flex-flow: row nowrap;}
+.update_info_ck ._body .avata-modal .avata-part {width: 144px; height: 144px;}
+.update_info_ck ._body .avata-modal .avata-part img{width: 144px; height: 144px; }
+.update_info_ck ._body .avata-modal > ul {    width: 350px;    height: 144px;    padding-right: 20px;    margin-left: 80;    display: -ms-flexbox;    display: flex;    -ms-flex-flow: column nowrap;    flex-flow: column nowrap;}
+
+.nnn{ overflow: hidden; display: block;  }
+
+
+
+.safety-list{
+    box-sizing: border-box;
+    color: rgba(0,0,0,.65);
+    font-family: Chinese Quote,-apple-system,BlinkMacSystemFont,Segoe UI,PingFang SC,Hiragino Sans GB,Microsoft YaHei,Helvetica Neue,Helvetica,Arial,sans-serif,Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol;
+    font-size: 14px;
+    font-variant: tabular-nums;
+    line-height: 1.5;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    position: relative;
+}
+.safety-list * {
+    outline: none;
+}
+.safety-list .safety-list-item{
+    padding-bottom: 14px;
+    padding-top: 14px;
+    -ms-flex-align: center;
+    align-items: center;
+    display: -ms-flexbox;
+    display: flex;
+    border-bottom: 1px solid #e8e8e8;
+    
+}
+
+.safety-list-item-meta {
+    -ms-flex: 1 1;
+    -ms-flex-align: start;
+    align-items: flex-start;
+    display: -ms-flexbox;
+    display: flex;
+    flex: 1 1;
+    font-size: 0;
+}
+
+.safety-list-item-meta-avatar {
+    margin-right: 16px;
+}
+
+.safety-list-item-meta-content {
+    -ms-flex: 1 0;
+    flex: 1 0;
+}
+
+.safety-list-item-meta-title {
+    color: rgba(0,0,0,.65);
+    font-size: 14px;
+    line-height: 22px;
+    margin-bottom: 4px;
+}
+
+.safety-list-item-meta-description {
+    color: rgba(0,0,0,.45);
+    font-size: 14px;
+    line-height: 22px;
+}
+
+.safety-list-item-action {
+    -ms-flex: 0 0 auto;
+    flex: 0 0 auto;
+    font-size: 0;
+    list-style: none;
+    margin-left: 48px;
+    padding: 0;
+}
+
+.safety-list-item-action>li {
+    color: #1890ff;
+    cursor: pointer;
+    display: inline-block;
+    font-size: 14px;
+    line-height: 22px;
+    padding: 0 8px;
+    position: relative;
+    text-align: center;
+}
+

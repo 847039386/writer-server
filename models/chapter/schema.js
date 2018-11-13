@@ -4,7 +4,8 @@ const ChapterSchema = new mongoose.Schema({
     title : { type :String },                // 分集标题
     drama_id : { type :mongoose.Schema.Types.ObjectId ,ref: 'drama' ,required :true },     // 剧本ID  
     chapterorder : { type :Number },          // 排序 越小越靠前 
-    content : { type :String , required :true},
+    content : { type :String , required :true},     // 内容
+    wordCount :{ type :Number ,default :0 },        // 内容字数
     create_at : { type :Date ,default :Date.now },   // 创建时间
     update_at : { type :Date ,default :Date.now }    // 修改时间
 });

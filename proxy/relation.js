@@ -1,5 +1,5 @@
 const Relation = require('../models').Relation;
-const UserNotify = require('./user_notify')
+const UserNotify = require('./user_notify');
 const User = require('../models').User;
 const Config = require('../config');
 
@@ -16,7 +16,7 @@ const addFollow = (from_user_id ,to_user_id) => {
             if(err){
                 reject(err.message)
             }else{
-                User.findByIdAndUpdate(to_user_id,{ $inc :{ follow :1 }} ,{ new :true ,fields : 'follow' }).exec((uerr,udata) =>{
+                User.findByIdAndUpdate(to_user_id,{ $inc :{ "count.follow" : 1 }} ,{ new :true ,fields : 'follow' }).exec((uerr,udata) =>{
                     if(uerr){
                         reject(uerr.message)
                     }else{
@@ -44,7 +44,7 @@ const undoFollow = (id ,to_user_id) => {
                 reject(err.message)
             }else{
                 if(data){
-                    User.findByIdAndUpdate(to_user_id,{ $inc :{ follow : -1 }} ,{ new :true ,fields : 'follow' }).exec((uerr,udata) =>{
+                    User.findByIdAndUpdate(to_user_id,{ $inc :{ "count.follow" : -1 }} ,{ new :true ,fields : 'count.follow' }).exec((uerr,udata) =>{
                         if(uerr){
                             reject(uerr.message)
                         }else{
@@ -96,8 +96,10 @@ const find = (page ,pageSize ,options) => {
     return new Promise((resolve ,reject) => {
         Promise.all([relationPromise,countPromise]).then((result) => {
             resolve({ 
-                data : result[0],
-                pagination : { total :result[1],current :page || 1 ,size :pageSize },
+                data : {
+                    list : result[0],
+                    pagination : { total :result[1],current :page || 1 ,size :pageSize }
+                },
                 success :true
             })
         }).catch((err) => {

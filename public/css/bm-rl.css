@@ -1,0 +1,28 @@
+    
+.login-bg{ background: #647084; width: 100%; height: 100%;}
+.login-bg .login-header{padding-top: 100px; text-align: center;}
+.login-bg .login-header .logo{height: 44px; vertical-align: top; margin-right: 16px;}
+.login-bg .login-header .title{font-size: 33px; color: rgba(0, 0, 0, 0.85); font-family: 'Myriad Pro', 'Helvetica Neue', Arial, Helvetica, sans-serif; font-weight: 600; position: relative; top: 2px;}
+.login-bg .login-container{width: 430px; height: 420px; position: absolute; top: 190px; left: 50%; margin: 0 0 0 -215px; z-index: 5; box-sizing: content-box;}
+.login-bg .login-panel{position: absolute; right: 0; top: 0; left: auto; margin: 0; z-index: 13; width: 330px; padding: 0 50px; height: 420px; box-sizing: content-box;}
+.login-bg .form-control{width: 100%; margin: 0 auto; padding: 10px 0 16px; position: relative;}
+.login-bg .login-panel .form-control .input-group{margin-bottom: 12px; position: relative;}
+.login-bg .login-panel .form-control .input-group input{width: 100%; height: 50px; line-height: 20px; padding: 13px 0; border: none; padding-left: 60px; font-size: 16px; color: #222; background: #fff; border-radius: 3px;}
+.login-bg .login-panel .form-control .login-error-tips{position: absolute; top: -20px; font-size: 14px; color: #fff; line-height: 20px;}
+.login-bg .login-panel .login-remember{padding-top: 12px; overflow: hidden;}
+.login-bg .login-panel .login-remember{padding-top: 12px;}
+.login-bg .login-panel .login-remember .remember-id{position: relative;}
+.login-bg .pull-left{float: left;}
+.login-bg .login-panel .login-remember .remember-txt{font-size: 14px; color: #b0b9c4;}
+.login-bg .login-panel .login-remember .login-error{color: #999; transition: color 1s cubic-bezier(.19,1,.22,1);}
+.login-bg .pull-right{float: right;}
+.login-bg .login-panel .login-submit{padding: 20px 0;}
+.login-bg .login-panel .btn.btn-primary{color: #fff; background: #04f; border: none;}
+.login-bg .login-submit .btn{width: 100%; font-size: 16px; font-family: inherit;}
+.login-bg .login-panel .btn-primary{width: 100%; display: block; height: 46px; line-height: 44px; border-radius: 3px; font-size: 16px; color: #fff; text-align: center; letter-spacing: 8px;}
+.login-bg .btn{position: relative; display: inline-block; vertical-align: middle; height: 36px; width: 138px; line-height: 36px; font-size: 14px; color: #3d63cc; text-align: center; white-space: nowrap; cursor: pointer; border: 1px solid #1755fe; border-radius: 3px; background-color: #fff; overflow: visible;}
+.login-bg .login-mode{text-align: left; position: relative; height: 32px; line-height: 32px;}
+.login-bg .login-panel .login-mode .login-mode-info{color: #b0b9c4; margin-right: 25px;}
+.login-bg .login-panel .login-mode .register{position: absolute; bottom: 0; right: 0;}
+.login-bg input, textarea, keygen, select, button{text-rendering: auto; color: initial; letter-spacing: normal; word-spacing: normal; text-transform: none; text-indent: 0px; text-shadow: none; display: inline-block; text-align: start; margin: 0em 0em 0em 0em;}
+.login-bg .login-panel .form-control .input-group .icon-input-icon{position: absolute; top: 13px; left: 21px;}

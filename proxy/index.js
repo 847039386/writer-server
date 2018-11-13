@@ -6,10 +6,12 @@ const User = require('./user');
 const UserAuth = require('./user_auth');
 const Drama = require('./drama');
 const Comment = require('./comment');
+const ReplyComment = require('./reply_comment');
 const Chapter = require('./chapter')
 const Relation = require('./relation')
-const DramaLike  = require('./drama_like')
+const Collect  = require('./collect')
 const UserNotify  = require('./user_notify')
+const Log  = require('./log')
 
 module.exports = {
     Topic ,
@@ -22,6 +24,8 @@ module.exports = {
     Comment ,
     Chapter ,
     Relation ,
-    DramaLike ,
-    UserNotify
+    Collect ,
+    UserNotify,
+    ReplyComment,
+    Log
 }

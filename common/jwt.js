@@ -1,16 +1,31 @@
 const CryptoJS = require("crypto-js");
+const uuid = require('uuid');
 
-const issueToken = (iss ,aud ,secretKey ,exp) => {
-    if(!exp){
-        exp = Date.now() + 1000 * 60 * 60 * 24;
-    }
-    const info = {
-        iss : iss,           // 签发者
-        aud : aud,          // 接收的一方
+/**
+ * 
+ * @param {*} options 
+ */
+const issueToken = (options) => {
+    const iss = options.iss || 'admin';
+    const sub = options.sub || 'token';
+    const aud = options.aud;                        // 必填
+    const jti = options.jti || uuid.v1();
+    const secretKey = options.secretKey;            // 必填
+    const role = options.role || 'user';
+    const exp = options.exp || Date.now() + 1000 * 60 * 60 * 24;
+    const result = {
+        iss : iss,              // 签发者
+        sub : sub,              // 标题
+        aud : aud,              // 接收者
+        jti : jti,              // jwt唯一ID
         iat : Date.now(),       // 签发时间
-        exp : exp
+        exp : exp,              // 过期时间
+        role : role,            // 角色
     }
-    return CryptoJS.AES.encrypt(JSON.stringify(info) ,secretKey).toString();
+    return {
+        data  : result,
+        token : CryptoJS.AES.encrypt(JSON.stringify(result) ,secretKey).toString(),
+    }
 }
 
 const decrypt = ( token ,secretKey ) => {
@@ -23,7 +38,6 @@ const decrypt = ( token ,secretKey ) => {
     }
     return decryptedData;
 }
-
 
 module.exports = {
     issueToken ,decrypt

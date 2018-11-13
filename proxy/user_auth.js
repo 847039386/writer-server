@@ -1,58 +1,24 @@
-const UserAuth = require('../models').UserAuth;
-const User = require('./user');
+// 只负责用户的身份验证（登陆注册等）
+const UserAuth = require('../models').User;
 const Config = require('../config');
 const UUID = require('uuid');
 const Email = require('../common').Email;
-const { Jwt ,qqOAuth } = require('../common')
+const Async = require('async');
+const { Jwt ,qqOAuth } = require('../common');
+var md5 = require("md5")
 
 
 /**
- * 用户绑定电子邮箱
+ * 查找 返回一条数据
  * @param {String} user_id 用户id
- * @param {String} email  电子邮箱
  */
-const bindEmail = ( user_id ,email ) => {
+const findAuthIdentity = (id) => {
     return new Promise((resolve ,reject) => {
-        UserAuth.findOne({identifier :email ,identity_type :'email' } ).select({ id :-1,identifier : 1 }).exec((err ,data) => {
+        UserAuth.findById(id).select({identity : 1}).exec((err ,data) => {
             if(err){
                 resolve({ success:false , msg :Config.debug ? err.message :'未知错误' })
             }else{
-                if( data ){
-                    resolve({ success :false , msg :'该用户已重复' })
-                }else{
-                    UserAuth.create({identifier :email,token :'' ,identity_type :'email',user_id :user_id  }).then((cerr , cdata) => {
-                        if(cerr){
-                            resolve({ success:false , msg :Config.debug ? cerr.message :'未知错误' })
-                        }else{
-                            if(cdata){
-                                resolve({ data : email , success :true })
-                            }else{
-                                resolve({ success :false ,msg :'邮箱绑定失败' })
-                            }
-                        }
-                    })
-                }
-            }
-        })
-    })
-}
-
-
-/**
- * 查看用户当前绑定的所有信息
- * @param {String} user_id  用户id
- */
-const userBindStatus = ( user_id ) =>{
-    return new Promise((resolve ,reject) => {
-        UserAuth.find({user_id } ).select({ id :-1,identity_type : 1 ,identifier :1 }).exec((err ,data) => {
-            if(err){
-                resolve({ success:false , msg :Config.debug ? err.message :'未知错误' })
-            }else{
-                if(data && data.length > 0){
-                    resolve({ success:true , data :data })
-                }else{
-                    resolve({ success:false , msg :'并没有该用户' })
-                }
+                resolve({ data : data , success :true })
             }
         })
     })
@@ -67,29 +33,17 @@ const userBindStatus = ( user_id ) =>{
 
 const hostLogin = ( username , password ) => {
     return new Promise(( resolve ,reject ) => {
-        UserAuth.findOne({ identifier :username ,identity_type :'username' }).exec(async (err ,ua) => {
+        UserAuth.findOne({ "identity.username.identifier" :username }).exec(async (err ,ua) => {
             if(err){
                 resolve({ success:false , msg :Config.debug ? err.message :'未知错误' })
-            }else if(!ua){
-                resolve({ success:false , msg :'不存在的用户' })
-            }else{
-                if(ua.token === password){
-                    let user = await User.findById(ua.user_id);
-                    if(user.success){
-                        let token = Jwt.issueToken(Config.admin,ua.user_id,Config.JwtKey);
-                        if(token){
-                            let userResult = user.data.toObject();
-                            userResult = Object.assign(userResult ,{ token }) 
-                            resolve({ success:true , data :userResult })
-                        }else{
-                            resolve({ success:false , msg :'签发失败' })
-                        }
-                    }else{
-                        resolve({ success:false , msg :'不存在的用户' })
-                    }
+            }else if(ua){
+                if(ua.identity.username.token === password){
+                    resolve({ success:true , data :ua }); 
                 }else{
                     resolve({ success:false , msg :'密码错误' })
-                }       
+                }
+            }else{
+                resolve({ success:false , msg :'不存在的用户' })
             }
         })
     })
@@ -97,48 +51,87 @@ const hostLogin = ( username , password ) => {
 
 
 /**
- * 用户简易注册。。这里非本站用户绑定
+ * 第三方注册。。
+ * @method  thirdPartyRegister
+ * @param   {Object}    identityINFO    身份信息 
+ * @param   {Object}    userSchema      user注册信息
+ * @return  {Promise} 
+ * @example 
+ * thirdPartyRegister({ type :'qq' ,identifier :'IDENTIFIER' },{ name :'BEIMEN' ,avatar :'http://xxx.xxx.com/avatar/xxx.png' })
  */
-
-const toRegister = (identity_type ,name ,identifier ,avatar ,password ) => {
+const thirdPartyRegister = (identityINFO ,userSchema) => {
     return new Promise(async (resolve ,reject) => {
-       let user = await User.create(name ,avatar);
-       if(user.success){
-          let user_id = user.data._id;
-          UserAuth.create({identifier ,token :password ,identity_type ,user_id :user_id },(err ,ua) => {
+        let identifier = '';
+        let token = '';
+        if(!identityINFO.type || !identityINFO.identifier){
+            resolve({ success:false , msg :'未知注册' })
+        }
+        switch(identityINFO.type){
+            case "qq" :
+                identifier = "identity.qq.identifier";
+            break;
+            case "weixin" :
+                identifier = "identity.weixin.identifier";
+            break;
+            default :
+                resolve({ success:false , msg :'未知注册' })
+            break;
+        } 
+
+        // 创建登陆用户
+        let userAuthSchema = { }
+        userAuthSchema[identifier] = identityINFO.identifier;
+        userAuthSchema = Object.assign(userAuthSchema,{ 
+            name    :userSchema.name ,
+            avatar  :userSchema.avatar ,
+        })
+        UserAuth.create(userAuthSchema,(err ,userAuthDosc) => {
             if(err){
                 resolve({ success:false , msg :Config.debug ? err.message :'未知错误' })
             }else{
-                let token = Jwt.issueToken(Config.admin,ua.user_id,Config.JwtKey);
-                if(token){
-                    let userResult = user.data.toObject();
-                    userResult = Object.assign(userResult ,{ token })
-                    resolve({ success:true , msg :'注册成功' ,data :userResult }) 
+                if(userAuthDosc){
+                    const token = Jwt.issueToken({ aud :userAuthDosc._id ,secretKey :Config.JwtKey ,role :'user' }).token;
+                    let newUser = userAuthDosc.toObject();
+                    newUser = Object.assign(newUser, { token });
+                    resolve({ success:true , msg :'注册成功' ,data :newUser }) 
                 }else{
-                    resolve({ success:false , msg :'签发失败' })
-                }    
+                    resolve({ success:false , msg :'注册失败' })
+                }
             }
-          })
-       }else{
-            resolve(user)
-       }
+        })
     })
 }
 
 /**
  * 查看是否重复的用户名。这里包括(email , username qq weixin)
  */
-const findRepeatUIdentifier = (identifier ,identity_type) => {
+const findRepeatUIdentifier = (identityINFO) => {
     return new Promise((resolve ,reject) => {
-        UserAuth.findOne({ identifier ,identity_type }).populate('user_id').exec((err ,data) => {
+        let identifier = '';
+        switch(identityINFO.type){
+            case "username" :
+                identifier = "identity.username.identifier";
+            break;
+            case "email" :
+                identifier = "identity.email.identifier";
+            break;
+            case "qq" :
+                identifier = "identity.qq.identifier";
+            break;
+            case "weixin" :
+                identifier = "identity.weixin.identifier";
+            break;
+            default :
+                resolve({ success:false , msg :'未知身份' })
+            break;
+        } 
+        let userAuthSchema = {  }
+        userAuthSchema[identifier] = identityINFO.identifier;
+        UserAuth.findOne(userAuthSchema).lean().exec((err ,data) => {
             if(err){
                 resolve({ success:false , msg :Config.debug ? err.message :'未知错误' })
             }else{
-                if(data){
-                    resolve({ success :true ,data : data.user_id })
-                }else{
-                    resolve({ success :true , data :null ,msg :'并没有该用户' })
-                }
+                resolve({ success :true ,data :data })
             }
         })
     })
@@ -150,10 +143,10 @@ const findRepeatUIdentifier = (identifier ,identity_type) => {
  */
 const findEmailSendPAC = (email ) =>{
     return new Promise((resolve ,reject) => {
-        let pac = UUID.v4().substr(0,6);
-        Email.send(email,pac).then((result) => {
+        const code = Math.floor(Math.random()*(999999-100000+1)+100000);        // 6位 随机数
+        Email.send(email,code).then((result) => {
             if(result.success){
-                resolve({ success :true ,data :pac })
+                resolve({ success :true ,data :code })
             }else{
                 resolve({ success :false , msg :result.msg })
             }
@@ -162,45 +155,284 @@ const findEmailSendPAC = (email ) =>{
 }
 
 /**
+ * 修改邮箱时发送验证码
+ * @param {*} uid 用户id 
+ * @param {*} new_mail 新的邮箱 
+ */
+const changeEmailPac = (uid,new_mail) => {
+    return new Promise((resolve ,reject) => {
+        let pac = Math.floor(Math.random()*(999999-100000+1)+100000);
+        let new_pac = Math.floor(Math.random()*(999999-100000+1)+100000);
+        UserAuth.findById(uid).select({ id :-1,identity : 1 }).exec((err ,data) => {
+            if(err){
+                resolve({ success :false , msg :result.msg })
+            }else{
+                if(data && data.identity.email.identifier){
+                    let old_mail = data.identity.email.identifier;
+                    if(old_mail === new_mail){
+                        resolve({ success :false , msg :'新邮箱不许与旧邮箱一致'})
+                    }else{
+                        Async.auto({
+                            oldMail : function(callback){
+                                Email.send(old_mail,pac).then((result) => {
+                                    if(result.success){
+                                        callback(null, { data : pac })
+                                    }else{
+                                        callback({ message :'旧邮件发送失败' })
+                                    }
+                                });
+                            },
+                            newMail : function(callback){
+                                Email.send(new_mail,new_pac).then((result) => {
+                                    if(result.success){
+                                        callback(null, { data : new_pac })
+                                    }else{
+                                        callback({ message :'新邮件发送失败' })
+                                    }
+                                });
+                            }
+                        }, function(err,results) {
+                            if(err){
+                                resolve({ success :false , msg :err.message})
+                            }else{
+                                resolve({ success :true , data : {
+                                    old_mail :old_mail,
+                                    new_mail :new_mail,
+                                    old_pac :results.oldMail.data,
+                                    new_pac :results.newMail.data,
+                                }})
+                            }
+                        })
+                    }
+                }else{
+                    resolve({ success :false , msg :'未知的身份'})
+                }
+            }
+        })
+    })
+}
+
+/**
+ * 绑定用户邮箱
+ * @param {*} user_id // 用户id
+ * @param {*} email // 用户邮箱
+ */
+const bindUserEmail = ( user_id ,email ) => {
+    return new Promise((resolve ,reject) => {
+        Async.auto({
+            mailExist : function(callback){
+                UserAuth.findOne({ "identity.email.identifier" : email }).exec((err ,dosc) => {
+                    if(err){
+                        callback(err);
+                    }else{
+                        if(dosc){
+                            callback(null,true)
+                        }else{
+                            callback(null,false);
+                        }
+                    }
+                })
+            },
+            userAuh : function(callback){
+                UserAuth.findById(user_id).exec((err ,dosc) => {
+                    if(err){
+                        callback(err);
+                    }else{
+                        if(dosc){
+                            callback(null,dosc)
+                        }else{
+                            callback({ message :'不存在的信息' });
+                        }
+                    }
+                })
+            },
+            bindMail : ['mailExist','userAuh',(results ,callback) => {
+                const mailExist = results.mailExist;
+                if(mailExist){
+                    callback(null,{ success :false , msg :'该邮箱已被绑定。' })
+                }else{
+                    const userAuh = results.userAuh;
+                    if(userAuh.identity.email.identifier){
+                        callback(null,{ success :false , msg :'已绑定邮箱，请勿重复绑定' })
+                    }else{
+                        UserAuth.findByIdAndUpdate(user_id,{ 'identity.email.identifier' : email  },{ new :true }).exec((err ,dosc) => {
+                            if(err){
+                                callback(err)
+                            }else{
+                                if(dosc){
+                                    callback(null,{ success :true , data :dosc.identity.email.identifier ,msg :'邮箱绑定成功' });
+                                }else{
+                                    callback({ message :'不存在的信息' });
+                                }
+                            }
+                        })
+                    }
+                }
+            }]
+        },(err ,results) => {
+            const bindMail = results.bindMail;
+            if(err){
+                resolve({ success:false , msg :Config.debug ? err.message :'未知错误' })
+            }else{
+                resolve(bindMail)
+            }
+        })
+    })
+}
+
+/**
+ * 为用户绑定本站用户名或修改密码
+ * @param {*} user_id 
+ * @param {*} username 
+ * @param {*} password 
+ */
+const bindHostUserName = (user_id ,username ,password) =>{
+    return new Promise((resolve ,reject) => {
+        Async.auto({
+            notRepeat : (callback) => {            
+                UserAuth.findOne({ "identity.username.identifier" : username }).exec((err,data) => {
+                    if(err){
+                        callback(err)
+                    }else{
+                        if(data){
+                            callback({message : '用户名重复，绑定失败'})
+                        }else{
+                            callback(null,true)
+                        }
+                    }
+                })
+            },
+            notBind : (callback) => {            
+                UserAuth.findById(user_id).exec((err,data) => {
+                    if(err){
+                        callback(err)
+                    }else{
+                        if(data && data.identity.username.identifier){
+                            callback({message : '您已绑定过用户名，绑定失败'})
+                        }else if(data && !data.identity.username.identifier){
+                            callback(null,true)
+                        }else{
+                            callback({message : '不能存在的身份'})
+                        }
+                    }
+                })
+            },
+            bindUserName :['notRepeat','notBind',(results ,callback) => {
+                const notRepeat = results.notRepeat;
+                const notBind = results.notBind;
+                if(notRepeat && notBind){
+                    var md5_token = md5(password);
+                    UserAuth.findByIdAndUpdate(user_id,{ "identity.username.identifier" : username ,"identity.username.token" :md5_token },{new :true}).exec((err,data) => {
+                        if(err){
+                            callback(err)
+                        }else{
+                            if(data){
+                                callback(null,{ success :true , data : data.identity.username.identifier,  msg:'绑定成功' })
+                            }else{
+                                callback({message : '不能存在的身份'})
+                            }
+                        }
+                    })
+                }else{
+                    callback({message : '未知错误'})
+                }
+            }]
+        },(err ,results) => {
+            if(err){
+                resolve({ success:false , msg :err.message })
+            }else{
+                const bindUserName = results.bindUserName;
+                resolve(bindUserName)
+            }
+        })
+    })
+}
+
+
+/**
+ * 根据用户id 修改密码
+ * @param {*} user_id 
+ * @param {*} password 
+ */
+const updatePassByUserID = (user_id ,username ,password) => {
+    return new Promise((resolve ,reject) => {
+        UserAuth.findOneAndUpdate(user_id,{ "identity.username.token" :md5(password) },{new :true}).exec((err ,data) => {
+            if(err){
+                resolve({ success:false , msg :Config.debug ? err.message :'未知错误' })
+            }else{
+                if(data){
+                    resolve({ success:true ,data:data.identity.username.identifier ,msg :'修改密码成功' })
+                }else{
+                    resolve({ success:false , msg :'不能存在的身份' })
+                }
+            }
+        })
+    })
+}
+
+/**
+ * 根据用户id 修改邮箱
+ * @param {*} user_id 
+ * @param {*} password 
+ */
+const updateEmailByUserID = (user_id ,email) => {
+    return new Promise((resolve ,reject) => {
+        UserAuth.findByIdAndUpdate(user_id,{ "identity.email.identifier" :email },{new :true}).exec((ut_err ,data) => {
+            if(ut_err){
+                resolve({ success:false , msg :Config.debug ? ut_err.message :'未知错误' })
+            }else{
+                if(data){
+                    resolve({ success:true ,data:data.identity.email.identifier ,msg :'修改邮箱成功' })
+                }else{
+                    resolve({ success:false , msg :'未知错误' })
+                }
+            }
+        })
+    })
+}
+
+
+/**
  * qq登陆
- * @param {*} code 
+ * @param { String } code   // 第三方code
  */
 const qqLogin = ( code ) => {
     let qqoa = new qqOAuth({
         appID : Config.OAuth.qq.appID,
         appKEY : Config.OAuth.qq.appKEY,
         redirectURL : Config.OAuth.qq.redirectURL,
-    })
+    });
     return new Promise((resolve ,reject) => {
         var MyOpenid = '';
         var MyToken = '';
         try {
             qqoa.getTOKEN(code).then((token) => {
                 MyToken = token;
-                return qqoa.getOpenID(token);
+                return qqoa.getOpenID(token);               // 获取 openid  用户唯一id
             }).then((openid) => {
                 MyOpenid = openid;
-                return findRepeatUIdentifier(openid,'qq')
+                return findRepeatUIdentifier({ type :'qq' ,identifier :openid });       // 查看该ID是否绑定
             }).then((userData) => {
-                if(userData.success && userData.data){
-                    let user_id = userData.data._id
-                    let token = Jwt.issueToken(Config.admin,user_id,Config.JwtKey);
-                    if(token){
-                        let userResult = userData.data.toObject();
+                if(userData.success && userData.data){                                  // 如果绑定，获取用户信息
+                    // 状态等于 0 允许登陆
+                    if(userData.data.status == 0){
+                        const token = Jwt.issueToken({ aud :userData.data._id ,secretKey :Config.JwtKey ,role :'user'}).token;
+                        let userResult = userData.data;
                         userResult = Object.assign(userResult ,{ token }) 
                         resolve({ success:true , data :userResult })
-                    }else{
-                        resolve({ success:false , msg :'签发失败' })
+                    }else{      //否则限制登陆
+                        resolve({ success:false , msg:'该用户已被限制登陆。' })
                     }
-                    resolve(userData);
-                }else{
+                }else if(userData.success && !userData.data){                           // 如没有绑定，则注册用户信息
                     qqoa.getUserInfo(MyOpenid,MyToken).then((userInfo) => {
-                        toRegister('qq',userInfo.nickname,MyOpenid,userInfo.figureurl_2,MyToken).then((huserInfo) => {
-                            resolve(huserInfo)
+                        thirdPartyRegister({ type :'qq' ,identifier :MyOpenid },{ name :userInfo.nickname ,avatar :userInfo.figureurl_2 }).then((registerINFO) => {
+                            resolve(registerINFO)
                         })
                     }).catch((userInfoError) => {
                         resolve({success :false ,msg :userInfoError})
                     })
+                }else{
+                    resolve({success :false ,msg :'未知错误'})
                 }
             }).catch((error) => {
                 resolve({success :false ,msg :error})
@@ -208,112 +440,6 @@ const qqLogin = ( code ) => {
         } catch (error) {
             resolve({success :false ,msg :'error'})
         }
-    })
-}
-/**
- * 绑定用户邮箱或修改
- * @param {*} user_id // 用户id
- * @param {*} email // 用户邮箱
- */
-const bindUserEmail = ( user_id ,email ) => {
-    let pac = UUID.v4().substr(0,6);
-    return new Promise((resolve ,reject) => {
-        UserAuth.findOne({ user_id ,identity_type:'email' }).exec((err ,emailData) => {
-            if(err){
-                resolve({ success:false , msg :Config.debug ? err.message :'未知错误' })
-            }else{
-                if(emailData){
-                    UserAuth.findByIdAndUpdate(emailData._id,{ identifier :email  },{ new :true}).exec((ut_err ,ut_data) => {
-                        if(ut_err){
-                            resolve({ success:false , msg :Config.debug ? ut_err.message :'未知错误' })
-                        }else{
-                            if(ut_data){
-                                resolve({ success:true , data :ut_data })
-                            }else{
-                                resolve({ success:false , msg :'不存在的信息' })
-                            }
-                        }
-                    })
-                }else{
-                    UserAuth.create({ user_id ,identity_type:'email' ,token :pac ,identifier:email },(ct_err ,ct_data) => {
-                        if(ct_err){
-                            resolve({ success:false , msg :Config.debug ? ct_err.message :'未知错误' })
-                        }else{
-                            if(ct_data){
-                                resolve({ success:true , data :ct_data })
-                            }else{
-                                resolve({ success:false , msg :'未知错误' })
-                            }
-                        }
-                    })
-                }
-            }
-        })
-    })
-}
-
-/**
- * 为用户绑定本站用户名或修改密码(这里用旧密码修改密码)
- * @param {*} user_id 
- * @param {*} username 
- * @param {*} password 
- */
-const bindHostUserNameOrUpdatePassword = (user_id ,username ,password ,old_password) =>{
-    return new Promise((resolve ,reject) => {
-        UserAuth.find({ identity_type:'username' ,user_id }).exec((find_err,user_auth) => {
-            if(find_err){
-                resolve({ success:false , msg :Config.debug ? find_err.message :'未知错误' })
-            }else if(user_auth.length == 0){
-                UserAuth.create({ identifier :username ,identity_type:'username' , user_id , token :password },(create_err ,data) => {
-                    if(create_err){
-                        resolve({ success:false , msg :Config.debug ? create_err.message :'未知错误' })
-                    }else{
-                        resolve({ success:true ,data :username, msg :'绑定了用户名' })
-                    }
-                })
-            }else if(user_auth.length == 1){
-                let userA = user_auth[0];
-                if(userA.token === old_password){
-                    UserAuth.findByIdAndUpdate(userA._id,{ token :password }).exec((ut_err ,data) => {
-                        if(ut_err){
-                            resolve({ success:false , msg :Config.debug ? ut_err.message :'未知错误' })
-                        }else{
-                            if(data){
-                                resolve({ success:true ,data:userA.identifier ,msg :'修改密码成功' })
-                            }else{
-                                resolve({ success:false , msg :'未知错误' })
-                            }
-                        }
-                    })
-                }else{
-                    resolve({ success:false , msg :'旧密码输入错误' })
-                }
-            }else{
-                resolve({ success:false , msg :'出现了严重的错误' })
-            }
-        })
-    })
-}
-
-/**
- * 根据用户id 修改密码
- * @param {*} user_id 
- * @param {*} password 
- */
-const updatePassByUserID = (user_id ,password ,identity_type) => {
-    identity_type = identity_type || 'username'
-    return new Promise((resolve ,reject) => {
-        UserAuth.findOneAndUpdate({ user_id ,identity_type },{ token :password }).exec((ut_err ,data) => {
-            if(ut_err){
-                resolve({ success:false , msg :Config.debug ? ut_err.message :'未知错误' })
-            }else{
-                if(data){
-                    resolve({ success:true ,data:data.identifier ,msg :'修改密码成功' })
-                }else{
-                    resolve({ success:false , msg :'未知错误' })
-                }
-            }
-        })
     })
 }
 
@@ -334,13 +460,15 @@ const bindUserQQ = (user_id ,code) =>  {
                 return qqoa.getOpenID(token);
             }).then((openid) => {
                 MyOpenid = openid;
-                return findRepeatUIdentifier(openid,'qq')
+                return findRepeatUIdentifier({ type :'qq' ,identifier :openid }); 
             }).then((userData) => {
                 if(userData.success){
                     if(userData.data){
                         resolve({success :false ,msg :'该QQ已被绑定'});
                     }else{
-                        UserAuth.create({ identifier :MyOpenid ,identity_type:'qq' , user_id , token :MyToken },(create_err ,data) => {
+                        UserAuth.findByIdAndUpdate(user_id,{
+                            'identity.qq.identifier' : MyOpenid
+                        }).exec((create_err ,data) => {
                             if(create_err){
                                 resolve({ success:false , msg :Config.debug ? create_err.message :'未知错误' })
                             }else{
@@ -359,16 +487,52 @@ const bindUserQQ = (user_id ,code) =>  {
         }
     })
 }
+/**
+ * 站内注册
+ * @param {*} nikename  昵称 
+ * @param {*} username  用户名     
+ * @param {*} avatar    头像
+ * @param {*} pass      密码
+ */
+const toRegister = (nikename,username,avatar,pass) =>  {
+    return new Promise((resolve ,reject) => {
+        UserAuth.findOne({ "identity.username.identifier" : username }).exec((uerr ,desc) => {
+            if(uerr || desc){
+                resolve({ success :false , msg :'用户名已被注册' })
+            }else{
+                UserAuth.create({
+                    "name" :nikename,
+                    "avatar" : avatar,
+                    "identity.username.identifier" : username,
+                    "identity.username.token" : md5(pass)
+                },(err ,userAuthDosc) => {
+                    if(err){
+                        resolve({ success:false , msg :Config.debug ? err.message :'未知错误' })
+                    }else{
+                        if(userAuthDosc){
+                            resolve({ success:true , msg :'注册成功' ,data :userAuthDosc }) 
+                        }else{
+                            resolve({ success:false , msg :'注册失败' })
+                        }
+                    }
+                })
+            }
+        })
+    })
+}
 
 module.exports = {
-    hostLogin,
+    findAuthIdentity,
     toRegister,
+    hostLogin,
     findRepeatUIdentifier,
     qqLogin,
-    userBindStatus,
     findEmailSendPAC,
     bindUserEmail,
-    bindHostUserNameOrUpdatePassword,
+    bindHostUserName,
     bindUserQQ,
-    updatePassByUserID
+    updatePassByUserID,
+    changeEmailPac,
+    updateEmailByUserID,
+    thirdPartyRegister
 }

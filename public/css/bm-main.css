@@ -1,0 +1,71 @@
+
+/** 常用 */
+.clearfloat{clear:both}
+.ovh { overflow: hidden;  }
+.f-left{float: left;}
+.f-right{float: right;}
+.c-6{ color: #666666; }
+
+.text-red, .text-danger { color: #ea644a;}
+.text-muted{color: grey;}
+
+a ,a:hover{text-decoration: none; color: #2d64fb;}
+
+/** 动画 */
+@-webkit-keyframes fadeinT{0%{-webkit-transform:translateY(-10px);opacity:0}100%{-webkit-transform:translateY(0);opacity:1}}@-moz-keyframes fadeinT{0%{-moz-transform:translateY(-10px);opacity:0}100%{-moz-transform:translateY(0);opacity:1}}@-ms-keyframes fadeinT{0%{-ms-transform:translateY(-10px);opacity:0}100%{-ms-transform:translateY(0);opacity:1}}@keyframes fadeinT{0%{transform:translateY(-10px);opacity:0}100%{transform:translateY(0);opacity:1}}
+
+/** 超出省略 使用时，需添加 line-height 与 height */
+.text-omit{position: relative; overflow: hidden;}
+.text-omit::after{content: "..."; position: absolute; bottom: 0; right: 0; padding-left: 40px;
+background: -webkit-linear-gradient(left, transparent, #fff 55%);
+background: -o-linear-gradient(right, transparent, #fff 55%);
+background: -moz-linear-gradient(right, transparent, #fff 55%);
+background: linear-gradient(to right, transparent, #fff 55%);}
+
+
+/** 头部 */
+
+.bm-header{ background-image: url(../image/i-bgi.jpg);width: 100%;height: 244px;background-repeat: no-repeat;background-size: cover;   }
+.bm-lheader{height:59px;background-color:#fff ; box-shadow:0px 1px 3px #d9d8d1 ; }
+.bm-lheader a ,.bm-lheader a:hover { color: #404553 !important;}
+.bm-lheader .layui-main{width:1140px;margin:0 auto}
+.bm-lheader .layui-main .logo{position:absolute;left:0;top:16px}
+.bm-lheader .layui-main .component{position:absolute;width:200px;left:120px;top:16px}
+.bm-lheader .layui-main .layui-nav-r{position:absolute;right:0;top:0;padding:0;background:0 0}
+.bm-lheader .layui-main .layui-nav-l{position:absolute;left:120px;top:0;padding:0;background:0 0}
+.bm-header-search { width: 600px; height: 90px; margin: 0 auto; padding-top: 60px;}
+.bm-header-search .search-gjfl, .bm-header-search .search-gjfl a{margin-top :5px; text-align: center;color: #d9d8d1;}
+
+footer {text-align: center; }
+footer .friend-link{    overflow: hidden;padding-top: 20px;padding-bottom: 2px;}
+footer .friend-link a {font-size: 12px;line-height: 27px; margin-right: 16px;color: #1a1a1a; display:inline-block;}
+footer .copy-right{padding-bottom: 16px;}
+footer .copy-right p{overflow: hidden;height: 20px;font-size:12px;color: #a6a6a6;}
+
+/** 分割线 */
+p.horizontal-divider{display:table;white-space:nowrap;text-align:center;background:0 0;font-weight:500;color:rgba(0,0,0,.85);font-size:16px;margin:16px 0;height:1px;width:100%;vertical-align:middle;position:relative;top:-.06em}
+p.horizontal-divider span{font-weight:500;color:rgba(0,0,0,.85);font-size:16px;white-space:nowrap;text-align:center;padding:0 24px}
+p.horizontal-divider:after,p.horizontal-divider:before{content:'';display:table-cell;position:relative;top:50%;width:50%;border-top:1px solid #e8e8e8;transform:translateY(50%)}
+
+
+
+
+
+/** 整体内容 */
+.container{margin:50px auto;width:1000px;}
+.bm-container{margin:50px auto;width:1200px;}
+.bm-container-l {width: 934px; float: left; }
+.bm-container-r { float: right; width: 200px;  }
+
+body{ background: #f6f6f6; }
+
+.card2{
+    margin-bottom: 10px;
+    background: #fff;
+    overflow: hidden;
+    border-radius: 2px;
+    box-shadow: 0 1px 3px rgba(26,26,26,.1);
+    box-sizing: border-box; 
+}
+
+/** 新版顶部 */

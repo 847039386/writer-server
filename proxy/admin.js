@@ -3,6 +3,7 @@ const UUID = require('uuid');
 const Email = require('../common').Email;
 const Config = require('../config');
 const { Jwt } = require('../common');
+const md5 = require('md5')
 
 
 
@@ -19,7 +20,7 @@ const login = (email) => {
                 resolve(Object.assign(result,{ msg :Config.debug ? err.message :'未知错误' }));
             }else{
                 if(admin){
-                    let token = Jwt.issueToken(Config.admin,email,Config.JwtKey);
+                    let token = Jwt.issueToken({ aud :email ,secretKey :Config.JwtKey });
                     if(token){
                         let newAdmin = admin.toObject();
                         newAdmin.token = token;
@@ -44,7 +45,7 @@ const register = (name ,email) => {
             if(err){
                 resolve(Object.assign(result,{ msg : '未知错误' }));
             }else{
-                let token = Jwt.issueToken(Config.admin,email,Config.JwtKey);
+                let token = Jwt.issueToken(email,Config.JwtKey);
                 if(token){
                     let newAdmin = admin.toObject();
                     newAdmin.token = token;
@@ -166,11 +167,82 @@ const remove = (id) => {
 }
 
 
+const UNLogin = (email ,token ) => {
+    let result = { success :false };
+    return new Promise((resolve ,reject) => {
+        Admin.findOne({ email ,token  }).lean().exec((err ,docs) => {
+            if(err){
+                resolve(Object.assign(result,{ msg : '未知错误' }));
+            }else{
+                if(docs){
+                    resolve(Object.assign(result,{ success: true , data :docs}));
+                }else{
+                    resolve(Object.assign(result,{ msg :'用户名密码错误' }));
+                }
+                
+            }
+        })
+    });
+}
+
+const registerRootAdmin = (callback) => {
+    Admin.findOne({ authority :'admin' }).exec((err ,desc) => {
+        if(err){
+            callback({ success :false ,msg :'error' })
+        }else{
+            if(desc){
+                callback({ success :false ,msg :'777 admin exist' })
+            }else{
+                Admin.create({ 
+                    name :'超级管理员',
+                    email :Config.admin.email,
+                    token :md5(Config.admin.token),
+                    avatar :Config.admin.avatar,
+                    authority :'admin'
+                },(cerr , adminDesc) => {
+                    if(cerr){
+                        callback({ success :false ,msg :'error' })
+                    }else{
+                        if(adminDesc){
+                            callback({ success :true , msg :'create 777 admin' })
+                        }else{
+                            callback({ success :false ,msg :'error' })
+                        }
+                    }
+                })
+            }
+        }
+    })
+}
+
+const isRootAdmin = () => {
+    return new Promise((resolve ,reject) => {
+        Admin.findOne({ authority :'admin' }).lean().exec((err ,desc) => {
+            if(err){
+                reject(err)
+            }else{
+                if(desc){
+                    resolve(desc);
+                }else{
+                    reject('未存在超级管理员')
+                }
+                
+            }
+        })
+    });
+}
+
+
+
+
 module.exports = {
     login,
     register,
     sendPac,
     find,
     isRoot,
-    remove
+    remove,
+    UNLogin,
+    registerRootAdmin,
+    isRootAdmin
 }
